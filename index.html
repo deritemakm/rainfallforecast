@@ -704,17 +704,18 @@
         </div>
     </div>
 
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
-      
-        let map = L.map('map').setView([15.0794, 120.6200], 10);
+        // Initialize map centered on Pampanga with appropriate zoom
+        let map = L.map('map').setView([15.0794, 120.6200], 11);
 
-       
+        // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-      
+        // Pampanga municipalities data
         const pampangaMunicipalities = [
             {
                 name: "Angeles City",
@@ -967,6 +968,25 @@
             pampangaMunicipalities.forEach(municipality => {
                 municipality.rainfall = Math.max(5, municipality.rainfall + (Math.random() - 0.5) * 10);
                 municipality.rainfall = Math.round(municipality.rainfall);
+                
+                // Update type based on new rainfall amount
+                if (municipality.rainfall >= 40) {
+                    municipality.type = "extreme";
+                    municipality.condition = "Extreme Rain";
+                    municipality.icon = "⛈️";
+                } else if (municipality.rainfall >= 30) {
+                    municipality.type = "heavy";
+                    municipality.condition = "Heavy Rain";
+                    municipality.icon = "⛈️";
+                } else if (municipality.rainfall >= 20) {
+                    municipality.type = "moderate";
+                    municipality.condition = "Moderate Rain";
+                    municipality.icon = "🌧️";
+                } else {
+                    municipality.type = "light";
+                    municipality.condition = "Light Rain";
+                    municipality.icon = "🌦️";
+                }
             });
             
             // Remove old markers
@@ -982,7 +1002,8 @@
             const selectedValue = this.value;
             
             if (selectedValue === 'all') {
-                map.setView([15.0794, 120.6200], 10);
+                // Show all of Pampanga
+                map.setView([15.0794, 120.6200], 11);
             } else {
                 const municipality = pampangaMunicipalities.find(m => 
                     m.name.toLowerCase().replace(' ', '-') === selectedValue ||
@@ -990,43 +1011,46 @@
                 );
                 
                 if (municipality) {
-                    map.setView(municipality.coords, 12);
+                    map.setView(municipality.coords, 13);
                     updateWeatherCard(municipality);
                 }
             }
         });
 
-        // Add Pampanga province boundary (approximate)
+        // More accurate Pampanga province boundary
         const pampangaBounds = [
-            [14.8, 120.3],
-            [15.4, 120.3],
-            [15.4, 121.0],
-            [14.8, 121.0],
-            [14.8, 120.3]
+            [15.35, 120.40],  // Northwest
+            [15.35, 120.95],  // Northeast
+            [14.80, 120.95],  // Southeast
+            [14.80, 120.40],  // Southwest
+            [15.35, 120.40]   // Close the polygon
         ];
 
         L.polygon(pampangaBounds, {
-            color: 'rgba(255, 255, 255, 0.6)',
-            weight: 2,
-            fillOpacity: 0.1,
-            dashArray: '5, 5'
+            color: '#4A9EFF',
+            weight: 3,
+            fillOpacity: 0.05,
+            dashArray: '10, 5'
         }).addTo(map);
+
+        // Set map bounds to restrict view to Pampanga area
+        const southWest = L.latLng(14.75, 120.35);
+        const northEast = L.latLng(15.4, 121.0);
+        const bounds = L.latLngBounds(southWest, northEast);
+        
+        // Set max bounds to keep the map focused on Pampanga
+        map.setMaxBounds(bounds);
+        map.setMinZoom(10);
+        map.setMaxZoom(16);
 
         // Initialize markers
         addWeatherMarkers();
 
-        // Other interactive functionality
-        document.querySelectorAll('.forecast-item:not(.tomorrow-special)').forEach(item => {
+        // Interactive functionality for forecast items
+        document.querySelectorAll('.forecast-item').forEach(item => {
             item.addEventListener('click', function() {
                 document.querySelectorAll('.forecast-item').forEach(i => i.style.background = '');
-                this.style.background = 'rgba(255, 255, 255, 0.1)';
-            });
-        });
-
-        document.querySelectorAll('.nav-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
+                this.style.background = 'rgba(79, 172, 254, 0.1)';
             });
         });
 
