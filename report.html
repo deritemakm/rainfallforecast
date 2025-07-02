@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipalities Weather Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-image: url(image/home-bg.png);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-image: url(image/home-bg.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            overflow: hidden;
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100vw;
+            padding: 0;
+            gap: 30px;
+        }
+
+        .nav-sidebar {
+            width: 60px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 15px;
+            padding: 20px 0;
+            margin-top: 0%;
+            margin-left: 1%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: fit-content;
+        }
+
+        .horizontal-line {
+            width: 80%;          
+            border: none;         
+            border-top: 1px solid #ccc; 
+            margin: 5px 0;     
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+        }
+
+        .nav-icon.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .header {
+            margin-bottom: 0;
+            text-align: center;
+        }
+        .header h1 {
+            background: #fff;
+            color: #223a5e;
+            padding: 18px 80px;
+            border-radius: 40px;
+            font-size: 32px;
+            font-weight: bold;
+            font-style: italic;
+            display: inline-block;
+            letter-spacing: 2px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+        }
+
+        .weather-panel {
+            background: rgba(52, 73, 94, 0.92);
+            border-radius: 24px;
+            padding: 35px 30px 30px 30px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+            max-width: 1100px;
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .days-header {
+            display: grid;
+            grid-template-columns: 120px repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .municipality-label {
+            text-align: left;
+            padding-left: 10px;
+        }
+        .day-header {
+            text-align: center;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 10px 5px;
+        }
+        .municipality-row {
+            display: grid;
+            grid-template-columns: 120px repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .municipality-name {
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: left;
+            padding-left: 10px;
+        }
+        .weather-cell {
+            background: rgba(116, 142, 168, 0.85);
+            border-radius: 20px;
+            padding: 10px 0;
+            text-align: center;
+            min-height: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1.5px solid rgba(255,255,255,0.18);
+        }
+        .weather-cell:hover {
+            background: rgba(116, 142, 168, 1);
+            transform: scale(1.05);
+        }
+        .weather-text {
+            color: white;
+            font-size: 13px;
+            line-height: 1.2;
+            font-weight: 600;
+        }
+        @media (max-width: 1200px) {
+            .weather-panel {
+                max-width: 98vw;
+                padding: 20px 5px;
+            }
+            .header h1 {
+                font-size: 24px;
+                padding: 12px 30px;
+            }
+        }
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0;
+                gap: 10px;
+            }
+            .nav-sidebar {
+                left: 10px;
+                padding: 10px 0;
+                border-radius: 12px;
+            }
+            .weather-panel {
+                padding: 10px 2px;
+            }
+            .days-header, .municipality-row {
+                grid-template-columns: 80px repeat(7, 1fr);
+                gap: 5px;
+            }
+            .municipality-name {
+                font-size: 12px;
+            }
+            .weather-text {
+                font-size: 10px;
+            }
+        }
+        @media (max-width: 768px) {
+            .container {
+                min-height: unset;
+                width: 100vw;
+            }
+            .header h1 {
+                font-size: 16px;
+                padding: 8px 10px;
+            }
+            .nav-sidebar {
+                width: 40px;
+                gap: 8px;
+            }
+            .nav-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            .weather-panel {
+                padding: 4px 0;
+            }
+            .days-header, .municipality-row {
+                grid-template-columns: 60px repeat(7, 1fr);
+                gap: 2px;
+            }
+            .municipality-name {
+                font-size: 9px;
+            }
+            .weather-text {
+                font-size: 7px;
+            }
+        }
+    </style>
+</head>
+<body>
+      <div class="nav-sidebar">
+            <a href="index.html" class="nav-icon"><img src="image/logo-img.png" alt="Logo icon"></a>
+            <hr class="horizontal-line">
+            <a href="index.html" class="nav-icon"><img src="image/home-icon.png" alt="home icon"></a>
+            <a href="report.html" class="nav-icon"><img src="image/active-repicon.png" alt="report icon"></a>
+            <a href="try.html" class="nav-icon"><img src="image/about-icon.png" alt="about icon"></a>
+        </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>MUNICIPALITIES</h1>
+        </div>
+
+        <div class="weather-panel">
+            <div class="days-header">
+                <div class="municipality-label"></div>
+                <div class="day-header">Tomorrow</div>
+                <div class="day-header">Tuesday</div>
+                <div class="day-header">Wednesday</div>
+                <div class="day-header">Thursday</div>
+                <div class="day-header">Friday</div>
+                <div class="day-header">Saturday</div>
+                <div class="day-header">Sunday</div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">ANGELES</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">APALIT</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">ARAYAT</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">BACOLOR</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">CANDABA</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">FLORID...</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">GUAGUA</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">LUBAO</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">MABAL</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+
+            <div class="municipality-row">
+                <div class="municipality-name">MACABEBE</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+            <div class="municipality-row">
+                <div class="municipality-name">MAGALANG</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+            <div class="municipality-row">
+                <div class="municipality-name">MASANTOL</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+            <div class="municipality-row">
+                <div class="municipality-name">MEXICO</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+            <div class="municipality-row">
+                <div class="municipality-name">MINALIN</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+            <div class="municipality-row">
+                <div class="municipality-name">PORAC</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                </div>
+            <div class="municipality-row">
+                <div class="municipality-name">SAN FERNANDO</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                </div>
+            <div class="municipality-row">
+                <div class="municipality-name">SAN LUIS</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                </div>
+            <div class="municipality-row">
+                <div class="municipality-name">SAN SIMON</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                </div>
+            <div class="municipality-row">
+                <div class="municipality-name">SANTA ANA</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                </div>
+            <div class="municipality-row">
+                <div class="municipality-name">SANTA RITA</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                </div>
+            <div class="municipality-row">
+                <div class="municipality-name">SANTO TOMAS</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                </div>
+            <div class="municipality-row">
+                <div class="municipality-name">SASMUAN</div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+                <div class="weather-cell"><div class="weather-text">Loading...</div></div>
+            </div>
+        </div>
+    </div>
+
+     <script src="report.js"></script>
+</body>
+</html>

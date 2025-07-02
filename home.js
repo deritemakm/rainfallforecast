@@ -239,50 +239,53 @@ function addWeatherMarkers() {
 
 // Fetch rainfall data from OpenMeteo API for all municipalities
 async function fetchRainfallData() {
-    const promises = pampangaMunicipalities.map(async (municipality) => {
-        const lat = municipality.coords[0];
-        const lon = municipality.coords[1];
-        // Fetch daily precipitation sum for the next 7 days
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum,weathercode&timezone=auto`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            if (data.daily && data.daily.precipitation_sum && data.daily.precipitation_sum.length > 0) {
-                const rainfall = Math.round(data.daily.precipitation_sum[0]);
-                municipality.rainfall = rainfall;
-                // Update type, condition, and icon based on rainfall
-                if (rainfall >= 40) {
-                    municipality.type = "extreme";
-                    municipality.condition = "Extreme Rain";
-                    municipality.icon = "⛈️";
-                } else if (rainfall >= 30) {
-                    municipality.type = "heavy";
-                    municipality.condition = "Heavy Rain";
-                    municipality.icon = "⛈️";
-                } else if (rainfall >= 20) {
-                    municipality.type = "moderate";
-                    municipality.condition = "Moderate Rain";
-                    municipality.icon = "🌧️";
-                } else {
-                    municipality.type = "light";
-                    municipality.condition = "Light Rain";
-                    municipality.icon = "🌦️";
+    const batchSize = 5; // Number of requests at a time
+    for (let i = 0; i < pampangaMunicipalities.length; i += batchSize) {
+        const batch = pampangaMunicipalities.slice(i, i + batchSize).map(async (municipality) => {
+            const lat = municipality.coords[0];
+            const lon = municipality.coords[1];
+            // Fetch daily precipitation sum for the next 7 days
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum,weathercode&timezone=auto`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.daily && data.daily.precipitation_sum && data.daily.precipitation_sum.length > 0) {
+                    const rainfall = Math.round(data.daily.precipitation_sum[0]);
+                    municipality.rainfall = rainfall;
+                    // Update type, condition, and icon based on rainfall
+                    if (rainfall >= 40) {
+                        municipality.type = "extreme";
+                        municipality.condition = "Extreme Rain";
+                        municipality.icon = "⛈️";
+                    } else if (rainfall >= 30) {
+                        municipality.type = "heavy";
+                        municipality.condition = "Heavy Rain";
+                        municipality.icon = "⛈️";
+                    } else if (rainfall >= 20) {
+                        municipality.type = "moderate";
+                        municipality.condition = "Moderate Rain";
+                        municipality.icon = "🌧️";
+                    } else {
+                        municipality.type = "light";
+                        municipality.condition = "Light Rain";
+                        municipality.icon = "🌦️";
+                    }
+                    // Store 7-day forecast
+                    municipality.forecast = [];
+                    for (let j = 0; j < data.daily.precipitation_sum.length; j++) {
+                        municipality.forecast.push({
+                            date: data.daily.time[j],
+                            rain: Math.round(data.daily.precipitation_sum[j]),
+                            weathercode: data.daily.weathercode ? data.daily.weathercode[j] : null
+                        });
+                    }
                 }
-                // Store 7-day forecast
-                municipality.forecast = [];
-                for (let i = 0; i < data.daily.precipitation_sum.length; i++) {
-                    municipality.forecast.push({
-                        date: data.daily.time[i],
-                        rain: Math.round(data.daily.precipitation_sum[i]),
-                        weathercode: data.daily.weathercode ? data.daily.weathercode[i] : null
-                    });
-                }
+            } catch (error) {
+                console.error(`Failed to fetch data for ${municipality.name}:`, error);
             }
-        } catch (error) {
-            console.error(`Failed to fetch data for ${municipality.name}:`, error);
-        }
-    });
-    await Promise.all(promises);
+        });
+        await Promise.all(batch); // Wait for this batch to finish before starting the next
+    }
 }
 
 // Helper to get day of week from date string
@@ -454,19 +457,7 @@ document.querySelectorAll('.forecast-item').forEach(item => {
     });
 });
 
-// Show loading spinner
-function showLoadingSpinner() {
-    const spinner = document.getElementById('loadingSpinner');
-    if (spinner) spinner.style.display = 'flex';
-}
-// Hide loading spinner
-function hideLoadingSpinner() {
-    const spinner = document.getElementById('loadingSpinner');
-    if (spinner) spinner.style.display = 'none';
-}
-
 // On page load, show spinner, fetch data, then hide spinner after update
-showLoadingSpinner();
 fetchRainfallData().then(() => {
     // Remove old markers
     weatherMarkers.forEach(marker => map.removeLayer(marker));
@@ -476,8 +467,41 @@ fetchRainfallData().then(() => {
     // Update main weather card with Angeles City and today
     const angeles = pampangaMunicipalities.find(m => m.name === "Angeles City");
     updateWeatherCard(angeles || pampangaMunicipalities[0], 0);
-    hideLoadingSpinner();
 });
 
 // Auto-update weather data every 5 minutes
-setInterval(fetchRainfallData, 300000); 
+setInterval(fetchRainfallData, 300000);
+
+// Clear weather card and forecast section on page load, show loading message
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.rainfall-amount').textContent = 'Loading...';
+    document.querySelector('.weather-status span:last-child').textContent = '';
+    document.querySelector('.location-date span:last-child').textContent = '';
+    document.querySelector('.weather-icon-large').textContent = '';
+    document.querySelector('.forecast-list').innerHTML = '<div style="color:white;padding:10px;">Loading forecast...</div>';
+}); 
+
+
+ // Add hover effects to weather cells
+        document.querySelectorAll('.weather-cell').forEach(cell => {
+            cell.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+            });
+            
+            cell.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Add click functionality to sidebar icons
+        document.querySelectorAll('.nav-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+
+    
