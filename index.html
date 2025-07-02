@@ -10,21 +10,16 @@
 <body>
      <div class="container">
         <div class="nav-sidebar">
-             <div class = "nav-icon"><img src="image/logo-img.png" alt = "Logo icon"></div>
+            <a href="index.html" class="nav-icon"><img src="image/logo-img.png" alt="Logo icon"></a>
             <hr class="horizontal-line">
-            <div class = "nav-icon"><img src="image/home-icon.png" alt = "home icon"></div>
-            <div class = "nav-icon"><img src="image/report-icon.png" alt = "home icon"></div>
-            <div class = "nav-icon"><img src="image/about-icon.png" alt = "home icon"></div>
+            <a href="index.html" class="nav-icon"><img src="image/active-homeicon.png" alt="home icon"></a>
+            <a href="report.html" class="nav-icon"><img src="image/report-icon.png" alt="report icon"></a>
+            <a href="try.html" class="nav-icon"><img src="image/about-icon.png" alt="about icon"></a>
         </div>
 
         <div class="left-panel">
-            <div id="loadingSpinner" class="loading-spinner-overlay">
-                <div class="spinner"></div>
-                <img src="image/logo-img.png" alt="Logo" class="spinner-logo">
-                <div class="spinner-text">Loading weather data...</div>
-            </div>
             <div class="weather-card">
-                <div class="weather-card-title"></div>
+                <div class="weather-card-title">Pampanga's Rainfall Condition Map</div>
                 <div class="weather-icon-large"></div>
                 <div class="rainfall-amount"></div>
                 <div class="weather-status">
@@ -109,6 +104,6 @@
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="script.js"></script>
+    <script src="home.js"></script>
 </body>
 </html>
