@@ -1,583 +1,583 @@
- * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-image: url(image/home-bg.png);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-            padding: 15px;
-            gap: 15px;
-        }
-
-        .nav-sidebar {
-            width: 60px;
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 15px;
-            padding: 20px 0;
-            margin-top: 15%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            height: fit-content;
-        }
-
-        .horizontal-line {
-            width: 80%;          
-            border: none;         
-            border-top: 1px solid #ccc; 
-            margin: 5px 0;     
-        }
-
-        .nav-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 18px;
-        }
-
-        .nav-icon.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .nav-icon:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-        }
-
-        .left-panel {
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        /* Mobile and Tablet Responsive Styles */
-        @media (max-width: 1024px) {
-            .container {
-                flex-direction: column;
-                height: auto;
-                min-height: 100vh;
-                padding: 10px;
-                gap: 10px;
-            }
-
-            .nav-sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                justify-content: center;
-                padding: 15px;
-                order: -1;
-            }
-
-            .left-panel {
-                width: 100%;
-                order: 0;
-            }
-
-            .main-content {
-                order: 1;
-                min-height: 60vh;
-            }
-
-            #map {
-                height: 400px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                overflow-y: auto;
-            }
-
-            .container {
-                padding: 8px;
-                gap: 8px;
-            }
-
-            .weather-card {
-                padding: 20px;
-            }
-
-            .weather-card-title {
-                font-size: 14px;
-            }
-
-            .rainfall-amount {
-                font-size: 28px;
-            }
-
-            .forecast-section {
-                padding: 15px;
-            }
-
-            .map-header {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-
-            .map-title {
-                font-size: 16px;
-            }
-
-            .municipality-select {
-                width: 100%;
-                padding: 10px 16px;
-            }
-
-            #map {
-                height: 350px;
-            }
-
-            .map-controls {
-                right: 15px;
-                top: 40%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 5px;
-                gap: 5px;
-            }
-
-            .nav-sidebar {
-                padding: 10px;
-                gap: 15px;
-            }
-
-            .nav-icon {
-                width: 35px;
-                height: 35px;
-                font-size: 16px;
-            }
-
-            .weather-card {
-                padding: 15px;
-            }
-
-            .weather-icon-large {
-                font-size: 28px;
-            }
-
-            .rainfall-amount {
-                font-size: 24px;
-            }
-
-            .forecast-section {
-                padding: 12px;
-            }
-
-            .forecast-item {
-                padding: 10px 12px;
-                gap: 10px;
-            }
-
-            .forecast-icon {
-                font-size: 18px;
-                width: 25px;
-            }
-
-            .map-header {
-                padding: 12px 15px;
-            }
-
-            .map-title {
-                font-size: 14px;
-            }
-
-            .municipality-select {
-                font-size: 12px;
-                padding: 8px 12px;
-            }
-
-            #map {
-                height: 300px;
-            }
-        }
-
-        /* Landscape orientation for tablets */
-        @media (max-width: 1024px) and (orientation: landscape) {
-            .container {
-                flex-direction: row;
-                height: 100vh;
-            }
-
-            .nav-sidebar {
-                width: 60px;
-                flex-direction: column;
-                height: fit-content;
-                padding: 15px 0;
-                order: 0;
-            }
-
-            .left-panel {
-                width: 280px;
-                order: 1;
-            }
-
-            .main-content {
-                order: 2;
-                min-height: auto;
-            }
-
-            #map {
-                height: calc(100vh - 120px);
-            }
-        }
-
-        .weather-card {
-            background: rgba(255, 255, 255, 0.15);
-            height: 220px;
-            margin-top: 16px;
-            border-radius: 14px;
-            padding: 16px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .weather-card-title {
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-
-        .weather-icon-large {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .rainfall-amount {
-            font-size: 25px;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-
-        .weather-status {
-            font-size: 12px;
-            gap: 4px;
-            margin-bottom: 4px;
-        }
-
-        .weather-status-icon {
-            font-size: 13px;
-        }
-
-        .location-date {
-            font-size: 11px;
-            gap: 3px;
-            margin-bottom: 2px;
-        }
-
-        .forecast-section {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
-            padding: 20px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 16px;
-        }
-
-        .forecast-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .forecast-title {
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .day-dropdown {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            color: rgba(11, 11, 11, 0.715);
-            padding: 6px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-
-        .forecast-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-        }
-
-        .forecast-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 15px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .forecast-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .forecast-item.tomorrow-special {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .forecast-icon {
-            font-size: 22px;
-            width: 30px;
-            text-align: center;
-        }
-
-        .forecast-details {
-            flex: 1;
-            color: white;
-        }
-
-        .forecast-rain {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .forecast-date {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .forecast-day {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 500;
-        }
-
-        .tomorrow-text {
-            font-size: 14px;
-            font-weight: 600;
-            color: white;
-            margin-bottom: 2px;
-        }
-
-        .tomorrow-desc {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .main-content {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .map-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 25px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            background: transparent;
-        }
-
-        .map-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .municipality-select {
-            background: rgba(5, 5, 5, 0.399);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        #map {
-            height: calc(100% - 80px);
-            border-radius: 0 0 20px 20px;
-        }
-
-        /* Precipitation legend new layout */
-        .precipitation-legend {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(180, 180, 180, 0.95);
-            padding: 18px 28px 16px 28px;
-            border-radius: 18px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
-            z-index: 1000;
-            min-width: 300px;
-            max-width: 350px;
-        }
-        .legend-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 10px;
-            letter-spacing: 0.01em;
-        }
-        .legend-gradient-bar {
-            width: 100%;
-            height: 6px;
-            border-radius: 4px;
-            background: linear-gradient(90deg, #FFB300 0%, #4A9EFF 50%, #B6D464 100%);
-            margin-bottom: 8px;
-            margin-top: 2px;
-        }
-        .legend-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #ffffff;
-            font-weight: 500;
-            opacity: 0.95;
-            letter-spacing: 0.01em;
-        }
-        
-        /* Hide old legend styles in this context */
-        .precipitation-legend .legend-items,
-        .precipitation-legend .legend-item,
-        .precipitation-legend .legend-dot,
-        .precipitation-legend .legend-text { display: none !important; }
-
-        .extreme { background: #FF4444; }
-        .heavy { background: #FF8800; }
-        .moderate { background: #4A9EFF; }
-        .light { background: #88CC88; }
-
-        /* Custom marker styles */
-        .weather-marker {
-            background: transparent;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .weather-popup {
-            text-align: center;
-        }
-
-        .weather-popup h3 {
-            margin: 0 0 5px 0;
-            color: #333;
-        }
-
-        .weather-popup p {
-            margin: 2px 0;
-            color: #666;
-        }
-
-        .map-controls {
-            position: absolute;
-            right: 20px;
-            top: 120px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 1000;
-        }
-
-        .control-button {
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            color: #666;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .control-button:hover {
-            background: white;
-            transform: scale(1.05);
-        }
-
-        .loading-spinner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .spinner {
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid #3498db;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .spinner-logo {
-            width: 60px;
-            height: 60px;
-            margin-top: 18px;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
-        }
-        .spinner-text {
-            color: #fff;
-            font-size: 1.1rem;
-            margin-top: 6px;
-            letter-spacing: 0.03em;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.18);
-            font-weight: 500;
-        }
-
-        .municipality-table-scroll {
-            max-height: 480px;
-            overflow-y: auto;
-            border-radius: 12px;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-image: url(image/home-bg.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    padding: 15px;
+    gap: 15px;
+}
+
+.nav-sidebar {
+    width: 60px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 15px;
+    padding: 20px 0;
+    margin-top: 15%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: fit-content;
+}
+
+.horizontal-line {
+    width: 80%;          
+    border: none;         
+    border-top: 1px solid #ccc; 
+    margin: 5px 0;     
+}
+
+.nav-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+}
+
+.nav-icon.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.nav-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.left-panel {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+/* Mobile and Tablet Responsive Styles */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .nav-sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        justify-content: center;
+        padding: 15px;
+        order: -1;
+    }
+
+    .left-panel {
+        width: 100%;
+        order: 0;
+    }
+
+    .main-content {
+        order: 1;
+        min-height: 60vh;
+    }
+
+    #map {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+
+    .container {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .weather-card {
+        padding: 20px;
+    }
+
+    .weather-card-title {
+        font-size: 14px;
+    }
+
+    .rainfall-amount {
+        font-size: 28px;
+    }
+
+    .forecast-section {
+        padding: 15px;
+    }
+
+    .map-header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .map-title {
+        font-size: 16px;
+    }
+
+    .municipality-select {
+        width: 100%;
+        padding: 10px 16px;
+    }
+
+    #map {
+        height: 350px;
+    }
+
+    .map-controls {
+        right: 15px;
+        top: 40%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .nav-sidebar {
+        padding: 10px;
+        gap: 15px;
+    }
+
+    .nav-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+
+    .weather-card {
+        padding: 15px;
+    }
+
+    .weather-icon-large {
+        font-size: 28px;
+    }
+
+    .rainfall-amount {
+        font-size: 24px;
+    }
+
+    .forecast-section {
+        padding: 12px;
+    }
+
+    .forecast-item {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .forecast-icon {
+        font-size: 18px;
+        width: 25px;
+    }
+
+    .map-header {
+        padding: 12px 15px;
+    }
+
+    .map-title {
+        font-size: 14px;
+    }
+
+    .municipality-select {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    #map {
+        height: 300px;
+    }
+}
+
+/* Landscape orientation for tablets */
+@media (max-width: 1024px) and (orientation: landscape) {
+    .container {
+        flex-direction: row;
+        height: 100vh;
+    }
+
+    .nav-sidebar {
+        width: 60px;
+        flex-direction: column;
+        height: fit-content;
+        padding: 15px 0;
+        order: 0;
+    }
+
+    .left-panel {
+        width: 280px;
+        order: 1;
+    }
+
+    .main-content {
+        order: 2;
+        min-height: auto;
+    }
+
+    #map {
+        height: calc(100vh - 120px);
+    }
+}
+
+.weather-card {
+    background: rgba(255, 255, 255, 0.15);
+    height: 220px;
+    margin-top: 16px;
+    border-radius: 14px;
+    padding: 16px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.weather-card-title {
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.weather-icon-large {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.rainfall-amount {
+    font-size: 25px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.weather-status {
+    font-size: 12px;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.weather-status-icon {
+    font-size: 13px;
+}
+
+.location-date {
+    font-size: 11px;
+    gap: 3px;
+    margin-bottom: 2px;
+}
+
+.forecast-section {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 16px;
+}
+
+.forecast-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.forecast-title {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.day-dropdown {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: rgba(11, 11, 11, 0.715);
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+}
+
+.forecast-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.forecast-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 15px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.forecast-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.forecast-item.tomorrow-special {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.forecast-icon {
+    font-size: 22px;
+    width: 30px;
+    text-align: center;
+}
+
+.forecast-details {
+    flex: 1;
+    color: white;
+}
+
+.forecast-rain {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.forecast-date {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.forecast-day {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+.tomorrow-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 2px;
+}
+
+.tomorrow-desc {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.main-content {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: transparent;
+}
+
+.map-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.municipality-select {
+    background: rgba(5, 5, 5, 0.399);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+#map {
+    height: calc(100% - 80px);
+    border-radius: 0 0 20px 20px;
+}
+
+/* Precipitation legend new layout */
+.precipitation-legend {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(180, 180, 180, 0.95);
+    padding: 18px 28px 16px 28px;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 350px;
+}
+.legend-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: 0.01em;
+}
+.legend-gradient-bar {
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #FFB300 0%, #4A9EFF 50%, #B6D464 100%);
+    margin-bottom: 8px;
+    margin-top: 2px;
+}
+.legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: 500;
+    opacity: 0.95;
+    letter-spacing: 0.01em;
+}
+
+/* Hide old legend styles in this context */
+.precipitation-legend .legend-items,
+.precipitation-legend .legend-item,
+.precipitation-legend .legend-dot,
+.precipitation-legend .legend-text { display: none !important; }
+
+.extreme { background: #FF4444; }
+.heavy { background: #FF8800; }
+.moderate { background: #4A9EFF; }
+.light { background: #88CC88; }
+
+/* Custom marker styles */
+.weather-marker {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.weather-popup {
+    text-align: center;
+}
+
+.weather-popup h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.weather-popup p {
+    margin: 2px 0;
+    color: #666;
+}
+
+.map-controls {
+    position: absolute;
+    right: 20px;
+    top: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.control-button {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: #666;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.control-button:hover {
+    background: white;
+    transform: scale(1.05);
+}
+
+.loading-spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner-logo {
+    width: 60px;
+    height: 60px;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+}
+.spinner-text {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-top: 6px;
+    letter-spacing: 0.03em;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    font-weight: 500;
+}
+
+.municipality-table-scroll {
+    max-height: 480px;
+    overflow-y: auto;
+    border-radius: 12px;
+}

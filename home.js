@@ -342,34 +342,29 @@ function updateForecastSection(municipality, dayIndex = 0) {
     forecastList.innerHTML = html;
 }
 
-// Update weather card with selected municipality data and selected day
-function updateWeatherCard(municipality, dayIndex = 0) {
+// Update weather card with selected municipality data
+function updateWeatherCard(municipality) {
     selectedMunicipality = municipality;
-    let rainfall = municipality.rainfall;
-    let icon = municipality.icon;
-    let condition = municipality.condition;
-    let dateText = `${municipality.name}, Pampanga`;
-    let dateDisplay = '';
-    if (municipality.forecast && municipality.forecast.length > dayIndex) {
-        const forecast = municipality.forecast[dayIndex];
-        rainfall = forecast.rain;
-        icon = getWeatherIcon(forecast.weathercode);
-        // Optionally, you can map weathercode to a condition string
-        condition = municipality.condition;
-        dateDisplay = new Date(forecast.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-    }
+
+    const rainfall = municipality.rainfall;
+    const icon = municipality.icon;
+    const condition = municipality.condition;
+    const dateText = `${municipality.name}, Pampanga`;
+    const currentDate = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    
+    // Update weather card with current date
     document.querySelector('.rainfall-amount').textContent = `${rainfall} mm Rainfall`;
     document.querySelector('.weather-status span:last-child').textContent = condition;
-    document.querySelector('.location-date span:last-child').textContent = dateText;
+    document.querySelector('.location-date span:last-child').textContent = currentDate;
     document.querySelector('.weather-icon-large').textContent = icon;
-    if (dateDisplay) {
-        // Update the date display in the weather card
-        const dateSpans = document.querySelectorAll('.location-date span:last-child');
-        if (dateSpans.length > 1) {
-            dateSpans[1].textContent = dateDisplay;
-        }
+
+    // Update date display for forecast
+    const dateSpans = document.querySelectorAll('.location-date span:last-child');
+    if (dateSpans.length > 1) {
+        dateSpans[1].textContent = currentDate;
     }
-    updateForecastSection(municipality, dayIndex);
+
+    updateForecastSection(municipality, 0); // Show today's forecast by default
 }
 
 // Toggle weather layer visibility

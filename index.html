@@ -6,11 +6,17 @@
     <title>Pampanga's Rainfall Condition Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="image/logo-icon.ico">
+    
+    <!--Font from Google-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
      <div class="container">
         <div class="nav-sidebar">
-            <a href="index.html" class="nav-icon"><img src="image/logo-img.png" alt="Logo icon"></a>
+            <a href="index.html" class="nav-icon"><img src="image/logo-icon.ico" alt="Logo icon"></a>
             <hr class="horizontal-line">
             <a href="index.html" class="nav-icon"><img src="image/active-homeicon.png" alt="home icon"></a>
             <a href="report.html" class="nav-icon"><img src="image/report-icon.png" alt="report icon"></a>
@@ -19,7 +25,7 @@
 
         <div class="left-panel">
             <div class="weather-card">
-                <div class="weather-card-title">Pampanga's Rainfall Condition Map</div>
+                <div class="weather-card-title">Weather Now</div>
                 <div class="weather-icon-large"></div>
                 <div class="rainfall-amount"></div>
                 <div class="weather-status">
@@ -84,8 +90,6 @@
             </div>
 
             <div id="map"></div>
-
-            
 
             <div class="precipitation-legend">
                 <div class="legend-title">Precipitation</div>
