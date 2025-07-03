@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipalities Weather Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-image: url(image/home-bg.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            overflow: hidden;
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100vw;
+            padding: 0;
+            gap: 30px;
+        }
+
+        .nav-sidebar {
+            width: 60px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 15px;
+            padding: 20px 0;
+            margin-top: 0%;
+            margin-left: 1%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: fit-content;
+        }
+
+        .horizontal-line {
+            width: 80%;          
+            border: none;         
+            border-top: 1px solid #ccc; 
+            margin: 5px 0;     
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+        }
+
+        .nav-icon.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .header {
+            margin-bottom: 0;
+            text-align: center;
+        }
+        .header h1 {
+            background: #fff;
+            color: #223a5e;
+            padding: 18px 80px;
+            border-radius: 40px;
+            font-size: 32px;
+            font-weight: bold;
+            font-style: italic;
+            display: inline-block;
+            letter-spacing: 2px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+        }
+
+         .weather-panel {
+            background: transparent;
+            border-radius: 24px;
+            padding: 35px 30px 30px 30px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+            max-width: 1100px;
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+
+        .content-card {
+            background:#00000035;
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 25px;
+            color: white;
+            line-height: 1.7;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .content-card p {
+            font-size: 16px;
+            margin-bottom: 0;
+            text-align: center;
+        }
+
+        .team-section {
+            background:#00000035;
+            border-radius: 20px;
+            padding: 35px;
+            color: white;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .team-intro {
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+
+        .team-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .team-member {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .team-member:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .weather-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                flex-direction: row;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+
+            .about-header {
+                padding: 15px 25px;
+                margin-bottom: 20px;
+            }
+
+            .about-header h1 {
+                font-size: 24px;
+            }
+
+            .content-card,
+            .team-section {
+                padding: 25px;
+                margin-bottom: 20px;
+            }
+
+            .team-members {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .team-member {
+                width: 100%;
+                text-align: center;
+                max-width: 300px;
+            }
+
+            .weather-icon {
+                font-size: 40px;
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+      <div class="nav-sidebar">
+            <a href="index.html" class="nav-icon"><img src="image/logo-img.png" alt="Logo icon"></a>
+            <hr class="horizontal-line">
+            <a href="index.html" class="nav-icon"><img src="image/home-icon.png" alt="home icon"></a>
+            <a href="report.html" class="nav-icon"><img src="image/report-icon.png" alt="report icon"></a>
+            <a href="about.html" class="nav-icon"><img src="image/active-abouticon.png" alt="about icon"></a>
+        </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>ABOUT</h1>
+        </div>
+
+        <div class="weather-panel">
+        <div class="content-card">
+            <p>This Rainfall Forecasting Website is specialized weather forecasting platform that provides accurate and up-to-date 7-day rainfall forecasts for all municipalities in Pampanga Philippines. Designed to help residents, farmers, travelers, and local government units, our website offers detailed daily rainfall predictions according to each municipality.</p>
+        </div>
+
+        <div class="team-section">
+            <p class="team-intro">We are Computer Science students who created a Pampanga Rainfall Forecasting to provide accurate 7-day rainfall forecasts for all municipalities in Pampanga. Our goal is to help communities stay prepared through reliable and easy-to-access weather information.</p>
+            
+            <div class="team-members">
+                <div class="team-member">Aaron Bolado</div>
+                <div class="team-member">Loriel Coniconde</div>
+                <div class="team-member">Mikaella Gonzales</div>
+                <div class="team-member">Yohairra Ignacio</div>
+                <div class="team-member">Gerald Karandang</div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+     <script src="report.js"></script>
+</body>
+</html>
