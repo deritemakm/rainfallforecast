@@ -62,7 +62,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 ---
 
-### 🔹 CMD
+### 🔹 CMD or VSCode
 ```cmd
 setup.bat
 ```
@@ -100,6 +100,6 @@ http://127.0.0.1:8000
 ```powershell
 # (run command based on terminal)
 .\run.bat # Windows (PowerShell)
-run.bat # Windows (CMD)
+run.bat # Windows (CMD or VSCode)
 ./run.sh # WSL/Linux/macOS
 ```
