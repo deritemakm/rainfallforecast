@@ -10,8 +10,8 @@ class WeatherMap {
         // Constants
         this.BATCH_SIZE = 5;
         this.UPDATE_INTERVAL = 300000; // 5 minutes
-        this.BACKEND_WEATHER_API_URL = 'http://127.0.0.1:8000/api/weather-data';     
-
+        this.API_BASE_URL = 'https://api.open-meteo.com/v1/forecast';
+        
         // Cache DOM elements
         this.domElements = {};
         
@@ -166,24 +166,76 @@ class WeatherMap {
         if (marker) marker.openPopup();
     }
     
-    // Reimplemented with fastapi server
+    // Fetch and update weather data
     async fetchAndUpdateWeatherData() {
-        this.showLoadingState();
         try {
-            const response = await fetch(this.BACKEND_WEATHER_API_URL);
-            
-            const processedData = await response.json(); // This will be the array of municipalities
-            console.log('Successfully fetched and parsed data:', processedData);
-
-            this.pampangaMunicipalities = processedData;
-
+            await this.fetchRainfallData();
             this.updateMarkers();
             this.updateInitialWeatherCard();
-
         } catch (error) {
-            console.error('Failed to fetch weather data from backend:', error);
+            console.error('Failed to fetch weather data:', error);
             this.showErrorState();
-        } 
+        }
+    }
+    
+    // Fetch rainfall data with optimized batch processing
+    async fetchRainfallData() {
+        const municipalities = this.pampangaMunicipalities;
+        
+        for (let i = 0; i < municipalities.length; i += this.BATCH_SIZE) {
+            const batch = municipalities.slice(i, i + this.BATCH_SIZE);
+            const promises = batch.map(municipality => this.fetchMunicipalityData(municipality));
+            
+            await Promise.allSettled(promises);
+            
+            // Add small delay between batches to avoid overwhelming the API
+            if (i + this.BATCH_SIZE < municipalities.length) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+    }
+    
+    // Fetch data for a single municipality
+    async fetchMunicipalityData(municipality) {
+        const [lat, lon] = municipality.coords;
+        const url = `${this.API_BASE_URL}?latitude=${lat}&longitude=${lon}&daily=precipitation_sum,weathercode&timezone=auto`;
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const data = await response.json();
+            this.processMunicipalityData(municipality, data);
+        } catch (error) {
+            console.error(`Failed to fetch data for ${municipality.name}:`, error);
+            // Keep existing data if fetch fails
+        }
+    }
+    
+    // Process API response data for municipality
+    processMunicipalityData(municipality, data) {
+        if (!data.daily?.precipitation_sum?.length) return;
+        
+        const rainfall = Math.round(data.daily.precipitation_sum[0]);
+        municipality.rainfall = rainfall;
+        
+        // Update weather classification
+        Object.assign(municipality, this.getWeatherClassification(rainfall));
+        
+        // Store forecast data
+        municipality.forecast = data.daily.precipitation_sum.map((rain, index) => ({
+            date: data.daily.time[index],
+            rain: Math.round(rain),
+            weathercode: data.daily.weathercode?.[index] || null
+        }));
+    }
+    
+    // Get weather classification based on rainfall
+    getWeatherClassification(rainfall) {
+        if (rainfall >= 40) return { type: "extreme", condition: "Extreme Rain", icon: "⛈️" };
+        if (rainfall >= 30) return { type: "heavy", condition: "Heavy Rain", icon: "⛈️" };
+        if (rainfall >= 20) return { type: "moderate", condition: "Moderate Rain", icon: "🌧️" };
+        return { type: "light", condition: "Light Rain", icon: "🌦️" };
     }
     
     // Update markers on map
