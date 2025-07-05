@@ -7,12 +7,13 @@ import asyncio # For running async tasks concurrently
 from datetime import datetime, timedelta
 import os
 
+from model.forecast import *
+
 app = FastAPI()
 
 # Serve everything under /static/ from the static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 1. Serve the main HTML page at the root URL '/'.
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
     # within the 'static' folder, relative to where main.py is.
@@ -30,7 +31,7 @@ weather_cache = {
 
 CACHE_DURATION_MINUTES = 15 
 
-# Constants for OpenMeteo API (moved from JS)
+# Constants for OpenMeteo API
 OPEN_METEO_API_BASE_URL = 'https://api.open-meteo.com/v1/forecast'
 
 pampanga_municipalities_data = [
@@ -68,22 +69,11 @@ def get_weather_classification(rainfall: int):
         return {"type": "moderate", "condition": "Moderate Rain", "icon": "🌧️"}
     return {"type": "light", "condition": "Light Rain", "icon": "🌦️"}
 
-# Helper function to get weather icon based on weather code
-def get_weather_icon_from_code(weathercode: int):
-    if weathercode is None: return '❓'
-    if weathercode >= 95: return '⛈️'
-    if weathercode >= 80: return '🌧️'
-    if weathercode >= 60: return '🌧️'
-    if weathercode >= 51: return '🌦️'
-    if weathercode >= 1: return '🌤️'
-    return '☀️'
-
-# 2. API Endpoint for Weather Data
 @app.get("/api/weather-data")
 async def get_all_weather_data():
     current_time = datetime.now()
 
-    # Check if cached data is still fresh
+    # Check if cached data is recent
     if weather_cache["last_updated"] and \
        (current_time - weather_cache["last_updated"]) < timedelta(minutes=CACHE_DURATION_MINUTES):
         print("Serving weather data from cache.")
@@ -102,39 +92,30 @@ async def get_all_weather_data():
             tasks.append(client.get(url))
 
         # Run all tasks concurrently (Python's equivalent of Promise.allSettled)
-        # return_exceptions=True ensures that even if one request fails, others still complete
         all_responses = await asyncio.gather(*tasks, return_exceptions=True)
 
         for i, response_or_exception in enumerate(all_responses):
-            muni_data = pampanga_municipalities_data[i].copy() # Copy original data
+            muni_data = pampanga_municipalities_data[i].copy()
 
             if isinstance(response_or_exception, httpx.Response):
                 try:
                     data = response_or_exception.json()
                     if data.get("daily") and data["daily"].get("precipitation_sum") and len(data["daily"]["precipitation_sum"]) > 0:
                         current_rainfall = round(data["daily"]["precipitation_sum"][0])
-                        muni_data.update(get_weather_classification(current_rainfall)) # Add type, condition, icon
-                        muni_data["rainfall"] = current_rainfall # Current day's rainfall
+                        muni_data.update(get_weather_classification(current_rainfall))
+                        muni_data["rainfall"] = current_rainfall
 
-                        # Store 7-day forecast
-                        muni_data["forecast"] = [
-                            {
-                                "date": data["daily"]["time"][j],
-                                "rain": round(data["daily"]["precipitation_sum"][j]),
-                                "weathercode": data["daily"]["weathercode"][j] if data["daily"].get("weathercode") else None,
-                                "icon": get_weather_icon_from_code(data["daily"]["weathercode"][j] if data["daily"].get("weathercode") else None)
-                            }
-                            for j in range(len(data["daily"]["precipitation_sum"]))
-                        ]
+                        # Call the forecasting model for 7-day forecast
+                        muni_data["forecast"] = forecast_model_dummy(muni_data, data)
+
                     else:
-                        # Handle cases with no valid daily data
                         muni_data.update({"rainfall": 0, "condition": "No Data", "icon": "❓", "type": "unknown", "forecast": []})
+                
                 except Exception as e:
-                    # Handle JSON parsing or data access errors
                     print(f"Error processing data for {muni_data['name']}: {e}")
                     muni_data.update({"error": str(e), "rainfall": 0, "condition": "Data Error", "icon": "⚠️", "type": "error", "forecast": []})
+            
             else:
-                # Handle network or HTTP request errors
                 print(f"Network error for {muni_data['name']}: {response_or_exception}")
                 muni_data.update({"error": str(response_or_exception), "rainfall": 0, "condition": "Network Error", "icon": "📡", "type": "error", "forecast": []})
 
