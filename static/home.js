@@ -10,8 +10,8 @@ class WeatherMap {
         // Constants
         this.BATCH_SIZE = 5;
         this.UPDATE_INTERVAL = 300000; // 5 minutes
-        this.BACKEND_WEATHER_API_URL = 'http://127.0.0.1:8000/api/weather-data';     
-
+        this.BACKEND_WEATHER_API_URL = 'http://127.0.0.1:8000/api/weather-data';
+        
         // Cache DOM elements
         this.domElements = {};
         
