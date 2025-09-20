@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipalities Weather Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-image: url(image/home-bg.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            overflow: hidden;
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100vw;
+            padding: 0;
+            gap: 30px;
+            position: relative;
+            z-index: 4;
+        }
+
+        .nav-sidebar {
+            width: 60px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 15px;
+            padding: 20px 0;
+            margin-top: 0%;
+            margin-left: 1%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: fit-content;
+            position: relative;
+            z-index: 5;
+        }
+
+        .horizontal-line {
+            width: 80%;          
+            border: none;         
+            border-top: 1px solid #ccc; 
+            margin: 5px 0;     
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+        }
+
+        .nav-icon.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .header {
+            margin-bottom: 0;
+            text-align: center;
+        }
+        .header h1 {
+            background: #fff;
+            color: #223a5e;
+            padding: 18px 80px;
+            border-radius: 40px;
+            font-size: 32px;
+            font-weight: bold;
+            font-style: italic;
+            display: inline-block;
+            letter-spacing: 2px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+        }
+
+        .weather-panel {
+            background: rgba(52, 73, 94, 0.92);
+            border-radius: 24px;
+            padding: 35px 30px 30px 30px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+            max-width: 1100px;
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .days-header {
+            display: grid;
+            grid-template-columns: 120px repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .municipality-label {
+            text-align: left;
+            padding-left: 10px;
+        }
+      
+        .search-bar {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            margin-right: 200px;
+            margin-bottom: 0px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 16px;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .search-icon::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.9);
+            right: -3px;
+            bottom: -1px;
+            transform: rotate(45deg);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+
+        .dashboard {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 4;
+        }
+
+        /* Sun, Clouds, Wind, Rain, Lightning canvases */
+        #sunCanvas,
+        #cloudsCanvas,
+        #windCanvas,
+        #rainCanvas,
+        #lightningCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        #sunCanvas { z-index: 0; opacity: 0.9; }
+        #cloudsCanvas { opacity: 0.65; filter: blur(0.6px); z-index: 1; }
+        #windCanvas { z-index: 1; opacity: 0.25; }
+        #rainCanvas { z-index: 2; opacity: 0.75; }
+        #lightningCanvas { z-index: 3; opacity: 1; }
+
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .analysis-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .municipality-select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            outline: none;
+            min-width: 180px;
+        }
+
+        .municipality-select option {
+            background: rgba(52, 73, 94, 0.95);
+            color: white;
+            padding: 5px;
+        }
+
+        .location-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .weather-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .weather-card:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .weather-card.today {
+            background: rgba(255, 193, 7, 0.3);
+        }
+
+        .day-name {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .weather-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .weather-icon.rain {
+            background: linear-gradient(45deg, #64b5f6, #42a5f5);
+        }
+
+        .weather-icon.cloudy {
+            background: linear-gradient(45deg, #90a4ae, #78909c);
+        }
+
+        .weather-icon::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            top: 15px;
+            right: 15px;
+        }
+
+        .precipitation {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .rain-type {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .chart-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            bottom: 40px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .chart-line-path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .chart-dots {
+            fill: rgba(255, 193, 7, 1);
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-width: 2;
+            r: 5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chart-dots:hover {
+            r: 7;
+            fill: rgba(255, 255, 255, 1);
+        }
+
+        .chart-grid {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+        }
+
+        .chart-labels-y {
+            font-size: 10px;
+            opacity: 0.7;
+            fill: rgba(255, 255, 255, 0.8);
+            text-anchor: end;
+        }
+
+        .chart-min-max {
+            font-size: 11px;
+            font-weight: bold;
+            opacity: 0.9;
+        }
+
+        .chart-min {
+            fill: rgba(100, 181, 246, 1);
+        }
+
+        .chart-max {
+            fill: rgba(255, 87, 34, 1);
+        }
+
+        /* Min/Max header above chart */
+        .chart-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .chart-summary .chart-min,
+        .chart-summary .chart-max {
+            font-size: 12px;
+            font-weight: 700;
+            opacity: 0.95;
+        }
+        .chart-summary .chart-min { color: rgba(100, 181, 246, 1); }
+        .chart-summary .chart-max { color: rgba(255, 87, 34, 1); }
+
+        .range-indicator {
+            stroke-width: 1;
+            stroke-dasharray: 3,3;
+            opacity: 0.6;
+        }
+
+        .range-min {
+            stroke: rgba(100, 181, 246, 1);
+        }
+
+        .range-max {
+            stroke: rgba(255, 87, 34, 1);
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+
+        .chart-tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: nowrap;
+            transform: translate(-50%, -120%);
+            z-index: 10;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .chart-data-text {
+            fill: #ffffff;
+            opacity: 0.95;
+            font-size: 11px;
+            font-weight: 600;
+            text-anchor: middle;
+            pointer-events: none;
+            paint-order: stroke;
+            stroke: rgba(0,0,0,0.4);
+            stroke-width: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        .stat-title {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-subtitle {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 1200px) {
+            .weather-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .weather-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .bottom-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for loading effect */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .weather-card, .stat-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .weather-card:nth-child(2) { animation-delay: 0.1s; }
+        .weather-card:nth-child(3) { animation-delay: 0.2s; }
+        .weather-card:nth-child(4) { animation-delay: 0.3s; }
+        .weather-card:nth-child(5) { animation-delay: 0.4s; }
+        .weather-card:nth-child(6) { animation-delay: 0.5s; }
+        .weather-card:nth-child(7) { animation-delay: 0.6s; }
+    </style>
+
+</head>
+<body>
+    <canvas id="sunCanvas"></canvas>
+    <canvas id="cloudsCanvas"></canvas>
+    <canvas id="windCanvas"></canvas>
+    <canvas id="rainCanvas"></canvas>
+    <canvas id="lightningCanvas"></canvas>
+    <div class="nav-sidebar">
+        <a href="/static/index.html" class="nav-icon"><img src="/static/image/logo-icon.ico" alt="Logo icon"></a>
+        <hr class="horizontal-line">
+        <a href="/static/index.html" class="nav-icon"><img src="/static/image/home-icon.png" alt="home icon"></a>
+        <a href="/static/reportAnalysis.html" class="nav-icon"><img src="/static/image/active-repicon.png" alt="report icon"></a>
+        <a href="/static/about.html" class="nav-icon"><img src="/static/image/about-icon.png" alt="about icon"></a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>MUNICIPALITIES</h1>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search municipalities...">
+            <div class="search-icon"></div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="location-header">
+                <h2 class="location-name" id="current-municipality">Angeles</h2>
+                <select class="municipality-select" id="municipalitySelect">
+                    <option value="Angeles">Angeles City</option>
+                    <option value="Apalit">Apalit</option>
+                    <option value="Arayat">Arayat</option>
+                    <option value="Bacolor">Bacolor</option>
+                    <option value="Candaba">Candaba</option>
+                    <option value="Floridablanca">Floridablanca</option>
+                    <option value="Guagua">Guagua</option>
+                    <option value="Lubao">Lubao</option>
+                    <option value="Mabalacat">Mabalacat City</option>
+                    <option value="Macabebe">Macabebe</option>
+                    <option value="Magalang">Magalang</option>
+                    <option value="Masantol">Masantol</option>
+                    <option value="Mexico">Mexico</option>
+                    <option value="Minalin">Minalin</option>
+                    <option value="Porac">Porac</option>
+                    <option value="San Fernando">San Fernando City</option>
+                    <option value="San Luis">San Luis</option>
+                    <option value="San Simon">San Simon</option>
+                    <option value="Santa Ana">Santa Ana</option>
+                    <option value="Santa Rita">Santa Rita</option>
+                    <option value="Santo Tomas">Santo Tomas</option>
+                    <option value="Sasmuan">Sasmuan</option>
+                </select>
+            </div>
+
+            <div class="weather-grid">
+                <div class="weather-card today">
+                    <div class="day-name">Tomorrow</div>
+                    <div class="weather-icon">🌤️</div>
+                    <div class="precipitation">2mm</div>
+                    <div class="rain-type">Light</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Tuesday</div>
+                    <div class="weather-icon rain">🌦️</div>
+                    <div class="precipitation">4mm</div>
+                    <div class="rain-type">Moderate</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Wednesday</div>
+                    <div class="weather-icon rain">🌦️</div>
+                    <div class="precipitation">6mm</div>
+                    <div class="rain-type">Moderate</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Thursday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">8mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Friday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">10mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Saturday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">12mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Sunday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">12mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+            </div>
+
+            <div class="bottom-section">
+                <div class="chart-container">
+                    <div class="chart-summary">
+                        <span class="chart-min">Min: 2mm</span>
+                        <span class="chart-max">Max: 12mm</span>
+                    </div>
+                    <div class="chart">
+                        <svg class="chart-svg" viewBox="0 0 420 160" overflow="visible">
+                            <!-- Grid lines -->
+                            <defs>
+                                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:rgba(255,255,255,0.8);stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:rgba(255,193,7,1);stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:rgba(255,255,255,0.8);stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Y-axis labels -->
+                            <text x="45" y="25" class="chart-labels-y">12mm</text>
+                            <text x="45" y="55" class="chart-labels-y">10mm</text>
+                            <text x="45" y="85" class="chart-labels-y">8mm</text>
+                            <text x="45" y="115" class="chart-labels-y">6mm</text>
+                            <text x="45" y="145" class="chart-labels-y">2mm</text>
+                            
+                            <!-- Grid lines -->
+                            <g class="chart-grid">
+                                <line x1="30" y1="20" x2="400" y2="20"></line>
+                                <line x1="30" y1="50" x2="400" y2="50"></line>
+                                <line x1="30" y1="80" x2="400" y2="80"></line>
+                                <line x1="30" y1="110" x2="400" y2="110"></line>
+                                <line x1="30" y1="140" x2="400" y2="140"></line>
+                            </g>
+                            
+                            <!-- Min/Max range indicators -->
+                            <line x1="30" y1="140" x2="400" y2="140" class="range-indicator range-min"></line>
+                            <line x1="30" y1="20" x2="400" y2="20" class="range-indicator range-max"></line>
+                            
+                            <!-- Line chart path: 2mm, 4mm, 6mm, 8mm, 10mm, 12mm, 12mm -->
+                            <path class="chart-line-path" d="M 50 140 L 110 120 L 170 110 L 230 80 L 290 50 L 350 20 L 380 20" stroke="url(#lineGradient)"></path>
+                            
+                            <!-- Data points with actual values -->
+                            <circle class="chart-dots" cx="50" cy="140" data-value="2mm"></circle>
+                            <circle class="chart-dots" cx="110" cy="120" data-value="4mm"></circle>
+                            <circle class="chart-dots" cx="170" cy="110" data-value="6mm"></circle>
+                            <circle class="chart-dots" cx="230" cy="80" data-value="8mm"></circle>
+                            <circle class="chart-dots" cx="290" cy="50" data-value="10mm"></circle>
+                            <circle class="chart-dots" cx="350" cy="20" data-value="12mm"></circle>
+                            <circle class="chart-dots" cx="380" cy="20" data-value="12mm"></circle>
+                            <!-- Persistent data labels holder -->
+                            <g class="chart-data-labels"></g>
+                        </svg>
+                    </div>
+                    <!-- Tooltip for chart data labels -->
+                    <div class="chart-tooltip" id="chartTooltip"></div>
+                    <div class="chart-labels">
+                        <span>Day 1</span>
+                        <span>Day 2</span>
+                        <span>Day 3</span>
+                        <span>Day 4</span>
+                        <span>Day 5</span>
+                        <span>Day 6</span>
+                        <span>Day 7</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Daily Average</div>
+                        <div class="stat-value">7.7mm</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Peak Day</div>
+                        <div class="stat-value">Sat and Sun</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Wet Days</div>
+                        <div class="stat-value">7</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Variability</div>
+                        <div class="stat-value">Light to Heavy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global effects controller namespace
+        window.weatherEffects = window.weatherEffects || {};
+        // Clouds background effect (morphing multi-puff clouds, respects reduced motion)
+        (function() {
+            const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const canvas = document.getElementById('cloudsCanvas');
+            if (!canvas || prefersReduced) return;
+
+            const ctx = canvas.getContext('2d');
+            let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            let width = 0, height = 0;
+            let clouds = [];
+            let time = 0;
+            let lastTs = 0;
+
+            // Tunables (multipliers)
+            let cloudDensityMul = 1;
+            let cloudSpeedMul = 1;
+            let cloudOpacity = parseFloat(getComputedStyle(canvas).opacity || '0.65') || 0.65;
+            let cloudsEnabled = true;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                // Build a few large cloud blobs
+                const baseCount = Math.max(4, Math.round(width / 300));
+                const target = Math.max(1, Math.round(baseCount * cloudDensityMul));
+                clouds = Array.from({ length: target }, () => makeCloud());
+            }
+
+            function makeCloud() {
+                const w = 260 + Math.random() * 400;
+                const h = 120 + Math.random() * 220;
+                const z = 0.7 + Math.random() * 0.8; // depth factor (parallax)
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * Math.min(height * 0.8, 600),
+                    w,
+                    h,
+                    z,
+                    // base speed in pixels per second, scaled by depth
+                    baseSpeed: (12 + Math.random() * 18) * (0.6 + z),
+                    alpha: 0.22 + Math.random() * 0.2,
+                    puffs: createPuffs(w, h)
+                };
+            }
+
+            function createPuffs(w, h) {
+                const n = 5 + Math.floor(Math.random() * 3); // 5-7 puffs
+                const puffs = [];
+                for (let i = 0; i < n; i++) {
+                    const ox = (i / (n - 1)) * w + (Math.random() * 20 - 10);
+                    const oy = (Math.random() * 0.3 - 0.15) * h; // small vertical variance
+                    const r = (h * (0.35 + Math.random() * 0.25)) * (0.85 + Math.random() * 0.3);
+                    puffs.push({
+                        ox,
+                        oy,
+                        r,
+                        phase: Math.random() * Math.PI * 2,
+                        ampX: 2 + Math.random() * 4,
+                        ampY: 1 + Math.random() * 3
+                    });
+                }
+                return puffs;
+            }
+
+            function drawCloud(c) {
+                ctx.save();
+                const baseY = c.y + c.h * 0.35;
+                const bob = Math.sin(time * 0.3 + c.w * 0.001) * 4 * c.z; // subtle vertical bob
+                for (const p of c.puffs) {
+                    const px = c.x + p.ox + Math.sin(time * 0.8 + p.phase) * p.ampX;
+                    const py = baseY + p.oy + Math.cos(time * 0.9 + p.phase) * p.ampY + bob;
+                    const grad = ctx.createRadialGradient(px, py, 0, px, py, p.r);
+                    const localAlpha = Math.min(1, (0.85 * c.alpha));
+                    grad.addColorStop(0, `rgba(255,255,255,${0.95 * localAlpha})`);
+                    grad.addColorStop(1, 'rgba(255,255,255,0)');
+                    ctx.fillStyle = grad;
+                    ctx.globalAlpha = 1;
+                    ctx.beginPath();
+                    ctx.arc(px, py, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            function step(ts) {
+                if (!lastTs) lastTs = ts;
+                const dt = Math.min(0.05, (ts - lastTs) / 1000);
+                lastTs = ts;
+                time += dt;
+                ctx.clearRect(0, 0, width, height);
+                for (let i = 0; i < clouds.length; i++) {
+                    const c = clouds[i];
+                    drawCloud(c);
+                    c.x += (c.baseSpeed * cloudSpeedMul) * dt; // horizontal drift in px/sec
+                    if (c.x - c.w > width + 50) {
+                        clouds[i] = makeCloud();
+                        clouds[i].x = -clouds[i].w - 20;
+                    }
+                }
+                requestAnimationFrame(step);
+            }
+
+            window.addEventListener('resize', () => {
+                dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                resize();
+            });
+            function applyCloudSettings() {
+                canvas.style.opacity = String(cloudOpacity);
+                if (!cloudsEnabled) {
+                    ctx.clearRect(0, 0, width, height);
+                    return;
+                }
+                // Adjust cloud count smoothly to target
+                const baseCount = Math.max(4, Math.round(width / 300));
+                const target = Math.max(1, Math.round(baseCount * cloudDensityMul));
+                const diff = target - clouds.length;
+                if (diff > 0) {
+                    for (let i = 0; i < diff; i++) clouds.push(makeCloud());
+                } else if (diff < 0) {
+                    clouds.splice(target);
+                }
+            }
+
+            // Expose controls for outside scripts
+            window.weatherEffects.clouds = {
+                set(config = {}) {
+                    if (typeof config.density === 'number') cloudDensityMul = Math.max(0, config.density);
+                    if (typeof config.speed === 'number') cloudSpeedMul = Math.max(0, config.speed);
+                    if (typeof config.opacity === 'number') cloudOpacity = Math.max(0, Math.min(1, config.opacity));
+                    if (typeof config.enabled === 'boolean') cloudsEnabled = config.enabled;
+                    applyCloudSettings();
+                }
+            };
+
+            resize();
+            applyCloudSettings();
+            requestAnimationFrame(step);
+        })();
+
+        // Sun background effect (soft glow + rays)
+        (function() {
+            const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const canvas = document.getElementById('sunCanvas');
+            if (!canvas || prefersReduced) return;
+
+            const ctx = canvas.getContext('2d');
+            let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            let width = 0, height = 0;
+            let sunEnabled = true;
+            let intensity = 0.9; // 0..1 affects opacity
+            let sizeMul = 1.0;   // scales radius
+            let angle = 0;
+            let sunX = 140, sunY = 140; // left-side default
+            let lockCenter = false; // default: not centered
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                if (lockCenter) {
+                    sunX = width * 0.5;
+                    sunY = height * 0.5;
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                if (!sunEnabled) return;
+                const r = 85 * sizeMul;
+                const grad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, r * 2.8);
+                grad.addColorStop(0, `rgba(255,235,130,${0.9 * intensity})`);
+                grad.addColorStop(0.5, `rgba(255,220,100,${0.35 * intensity})`);
+                grad.addColorStop(1, 'rgba(255,220,100,0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, r * 2.6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Rays
+                ctx.save();
+                ctx.translate(sunX, sunY);
+                ctx.rotate(angle);
+                const rays = 12;
+                for (let i = 0; i < rays; i++) {
+                    ctx.rotate((Math.PI * 2) / rays);
+                    ctx.globalAlpha = 0.22 * intensity;
+                    ctx.fillStyle = 'rgba(255, 240, 150, 1)';
+                    ctx.beginPath();
+                    ctx.moveTo(r * 0.8, 0);
+                    ctx.lineTo(r * 2.0, 6);
+                    ctx.lineTo(r * 2.0, -6);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            function step(ts) {
+                angle += 0.0006; // slow rotation
+                draw();
+                requestAnimationFrame(step);
+            }
+
+            window.addEventListener('resize', () => {
+                dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                resize();
+            });
+
+            window.weatherEffects.sun = {
+                set(config = {}) {
+                    if (typeof config.enabled === 'boolean') sunEnabled = config.enabled;
+                    if (typeof config.intensity === 'number') intensity = Math.max(0, Math.min(1, config.intensity));
+                    if (typeof config.size === 'number') sizeMul = Math.max(0.3, config.size);
+                    if (typeof config.center === 'boolean') lockCenter = config.center;
+                    if (typeof config.x === 'number' || typeof config.y === 'number') {
+                        lockCenter = false;
+                        if (typeof config.x === 'number') sunX = config.x;
+                        if (typeof config.y === 'number') sunY = config.y;
+                    }
+                    if (lockCenter) {
+                        sunX = width * 0.5;
+                        sunY = height * 0.5;
+                    } else if (typeof config.x !== 'number' && typeof config.y !== 'number') {
+                        // If not centered and no explicit coords, place on left
+                        sunX = Math.max(100, width * 0.18);
+                        sunY = Math.max(90, height * 0.22);
+                    }
+                    draw();
+                }
+            };
+
+            resize();
+            draw();
+            requestAnimationFrame(step);
+        })();
+
+        // Wind background effect (subtle streaks)
+        (function() {
+            const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const canvas = document.getElementById('windCanvas');
+            if (!canvas || prefersReduced) return;
+
+            const ctx = canvas.getContext('2d');
+            let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            let width = 0, height = 0;
+            let streaks = [];
+            let densityMul = 0.4;
+            let speedMul = 1.0;
+            let opacity = parseFloat(getComputedStyle(canvas).opacity || '0.25') || 0.25;
+            let enabled = false;
+            let angleDeg = -10; // slight tilt
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                rebuild();
+            }
+
+            function makeStreak() {
+                const len = 60 + Math.random() * 140;
+                const base = 120 + Math.random() * 160;
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    l: len,
+                    s: (base / 60) * speedMul, // px/frame
+                    w: 1 + Math.random() * 2,
+                    a: 0.15 + Math.random() * 0.25
+                };
+            }
+
+            function rebuild() {
+                const baseCount = (width * height) / 45000;
+                const target = enabled ? Math.round(baseCount * densityMul) : 0;
+                streaks = Array.from({ length: target }, () => makeStreak());
+            }
+
+            function step() {
+                ctx.clearRect(0, 0, width, height);
+                if (!enabled) return requestAnimationFrame(step);
+                ctx.globalAlpha = opacity;
+                ctx.strokeStyle = 'rgba(200, 230, 255, 0.9)';
+                ctx.lineCap = 'round';
+                const ang = (angleDeg * Math.PI) / 180;
+                const dx = Math.cos(ang);
+                const dy = Math.sin(ang);
+                for (let i = 0; i < streaks.length; i++) {
+                    const s = streaks[i];
+                    ctx.lineWidth = s.w;
+                    ctx.beginPath();
+                    ctx.moveTo(s.x, s.y);
+                    ctx.lineTo(s.x + dx * s.l, s.y + dy * s.l);
+                    ctx.stroke();
+                    s.x += s.s * dx;
+                    s.y += s.s * dy;
+                    if (s.x - s.l > width + 20 || s.y - s.l > height + 20) {
+                        streaks[i] = makeStreak();
+                        streaks[i].x = -Math.random() * 60;
+                        streaks[i].y = Math.random() * height;
+                    }
+                }
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(step);
+            }
+
+            window.addEventListener('resize', () => {
+                dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                resize();
+            });
+
+            window.weatherEffects.wind = {
+                set(config = {}) {
+                    if (typeof config.density === 'number') densityMul = Math.max(0, config.density);
+                    if (typeof config.speed === 'number') speedMul = Math.max(0, config.speed);
+                    if (typeof config.opacity === 'number') opacity = Math.max(0, Math.min(1, config.opacity));
+                    if (typeof config.enabled === 'boolean') enabled = config.enabled;
+                    if (typeof config.angle === 'number') angleDeg = config.angle;
+                    canvas.style.opacity = String(opacity);
+                    rebuild();
+                }
+            };
+
+            resize();
+            rebuild();
+            requestAnimationFrame(step);
+        })();
+
+        // Lightning background effect (occasional bolts + screen flash)
+        (function() {
+            const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const canvas = document.getElementById('lightningCanvas');
+            if (!canvas || prefersReduced) return;
+
+            const ctx = canvas.getContext('2d');
+            let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            let width = 0, height = 0;
+            let enabled = false;
+            let frequency = 0; // events per second
+            let intensity = 0.8; // flash brightness 0..1
+            let bolts = [];
+            let flashAlpha = 0;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+
+            function spawnBolt() {
+                const startX = Math.random() * width;
+                const startY = 0 + Math.random() * (height * 0.25);
+                const segs = 8 + Math.floor(Math.random() * 6);
+                const pts = [{ x: startX, y: startY }];
+                let x = startX, y = startY;
+                for (let i = 0; i < segs; i++) {
+                    x += (Math.random() - 0.5) * 60;
+                    y += (height / (segs + 1)) * (0.3 + Math.random() * 0.7);
+                    pts.push({ x, y });
+                }
+                return { pts, life: 14 + Math.floor(Math.random() * 10) };
+            }
+
+            function step(ts) {
+                ctx.clearRect(0, 0, width, height);
+                if (enabled) {
+                    // Random chance to spawn based on frequency
+                    if (Math.random() < frequency / 60) { // approx per-frame probability at 60fps
+                        bolts.push(spawnBolt());
+                        flashAlpha = Math.max(flashAlpha, 0.25 * intensity + Math.random() * 0.35 * intensity);
+                    }
+                }
+
+                // Draw bolts
+                ctx.lineCap = 'round';
+                for (let i = bolts.length - 1; i >= 0; i--) {
+                    const b = bolts[i];
+                    ctx.lineWidth = 2 + Math.random() * 1.5;
+                    ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+                    ctx.beginPath();
+                    ctx.moveTo(b.pts[0].x, b.pts[0].y);
+                    for (let j = 1; j < b.pts.length; j++) ctx.lineTo(b.pts[j].x, b.pts[j].y);
+                    ctx.stroke();
+                    // blue outer glow
+                    ctx.lineWidth = 5;
+                    ctx.strokeStyle = 'rgba(150, 190, 255, 0.35)';
+                    ctx.stroke();
+                    b.life--;
+                    if (b.life <= 0) bolts.splice(i, 1);
+                }
+
+                // Screen flash
+                if (flashAlpha > 0) {
+                    ctx.fillStyle = `rgba(255,255,255,${flashAlpha})`;
+                    ctx.fillRect(0, 0, width, height);
+                    flashAlpha *= 0.85; // fade out
+                    if (flashAlpha < 0.02) flashAlpha = 0;
+                }
+
+                requestAnimationFrame(step);
+            }
+
+            window.addEventListener('resize', () => {
+                dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                resize();
+            });
+
+            window.weatherEffects.lightning = {
+                set(config = {}) {
+                    if (typeof config.enabled === 'boolean') enabled = config.enabled;
+                    if (typeof config.frequency === 'number') frequency = Math.max(0, config.frequency);
+                    if (typeof config.intensity === 'number') intensity = Math.max(0, Math.min(1, config.intensity));
+                }
+            };
+
+            resize();
+            requestAnimationFrame(step);
+        })();
+
+        // Rain background effect (lightweight, respects reduced motion)
+        (function() {
+            const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const canvas = document.getElementById('rainCanvas');
+            if (!canvas || prefersReduced) return;
+
+            const ctx = canvas.getContext('2d');
+            let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            let drops = [];
+            let width = 0, height = 0;
+
+            // Tunables (multipliers)
+            let rainDensityMul = 1;
+            let rainSpeedMul = 1;
+            let rainLengthMul = 1;
+            let rainWindMul = 1;
+            let rainOpacity = parseFloat(getComputedStyle(canvas).opacity || '0.75') || 0.75;
+            let rainEnabled = true;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                rebuildDrops();
+            }
+
+            function makeDrop() {
+                const baseSpeed = 5 + Math.random() * 5; // px/frame base
+                const speed = baseSpeed * rainSpeedMul;
+                const len = (14 + Math.random() * 20) * rainLengthMul; // px (longer)
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    l: len,
+                    s: speed,
+                    w: 1.6 + Math.random() * 1.2,  // thicker
+                    a: 0.65 + Math.random() * 0.3  // slightly more opaque
+                };
+            }
+
+            function rebuildDrops() {
+                const baseCount = (width * height) / 14000; // density baseline
+                const targetCount = rainEnabled ? Math.round(baseCount * rainDensityMul) : 0;
+                drops = Array.from({ length: targetCount }, () => makeDrop());
+            }
+
+            function step() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.strokeStyle = 'rgba(200,220,255,0.7)';
+                ctx.lineCap = 'round';
+                for (let i = 0; i < drops.length; i++) {
+                    const d = drops[i];
+                    ctx.globalAlpha = d.a;
+                    ctx.lineWidth = d.w;
+                    ctx.beginPath();
+                    ctx.moveTo(d.x, d.y);
+                    ctx.lineTo(d.x, d.y + d.l);
+                    ctx.stroke();
+
+                    d.y += d.s;
+                    d.x += 0.5 * rainWindMul; // wind
+                    if (d.y - d.l > height || d.x > width + 10) {
+                        drops[i] = makeDrop();
+                        drops[i].y = -Math.random() * 40;
+                    }
+                }
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(step);
+            }
+
+            window.addEventListener('resize', () => {
+                dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                resize();
+            });
+            function applyRainSettings() {
+                canvas.style.opacity = String(rainOpacity);
+                rebuildDrops();
+            }
+
+            // Expose controls for outside scripts
+            window.weatherEffects.rain = {
+                set(config = {}) {
+                    if (typeof config.density === 'number') rainDensityMul = Math.max(0, config.density);
+                    if (typeof config.speed === 'number') rainSpeedMul = Math.max(0, config.speed);
+                    if (typeof config.length === 'number') rainLengthMul = Math.max(0, config.length);
+                    if (typeof config.wind === 'number') rainWindMul = Math.max(0, config.wind);
+                    if (typeof config.opacity === 'number') rainOpacity = Math.max(0, Math.min(1, config.opacity));
+                    if (typeof config.enabled === 'boolean') rainEnabled = config.enabled;
+                    applyRainSettings();
+                }
+            };
+
+            resize();
+            applyRainSettings();
+            requestAnimationFrame(step);
+        })();
+
+        // Function to determine rain type based on precipitation amount
+        function getRainType(precipitation) {
+            const value = parseFloat(precipitation);
+            if (isNaN(value) || value <= 0) return 'No Rain';
+            if (value <= 2.5) return 'Light';
+            if (value <= 7.5) return 'Moderate';
+            if (value <= 15) return 'Heavy';
+            if (value <= 30) return 'Intense';
+            return 'Torrential';
+        }
+
+        // Function to get appropriate weather icon and class based on rain type
+        function getWeatherIconAndClass(rainType) {
+            switch(rainType) {
+                case 'No Rain':
+                    return { icon: '☀️', class: '' }; // Clear
+                case 'Light':
+                    return { icon: '🌤️', class: '' }; // Partly cloudy
+                case 'Moderate':
+                    return { icon: '🌦️', class: 'rain' }; // Light rain
+                case 'Heavy':
+                    return { icon: '🌧️', class: 'rain' }; // Heavy rain
+                case 'Intense':
+                    return { icon: '⛈️', class: 'rain' }; // Thunderstorm
+                case 'Torrential':
+                    return { icon: '🌪️', class: 'rain' }; // Tornado/extreme weather
+                default:
+                    return { icon: '☀️', class: '' }; // Default sunny
+            }
+        }
+
+        // Add interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize rain types based on current precipitation values
+            updateRainTypes();
+
+            // Weather card hover effects
+            const weatherCards = document.querySelectorAll('.weather-card');
+            weatherCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    weatherCards.forEach(c => c.classList.remove('today'));
+                    this.classList.add('today');
+                    updateBackgroundFromActiveCard();
+                });
+            });
+
+            // Chart interactions - show visible tooltip and titles
+            const chartContainer = document.querySelector('.chart-container');
+            const tooltip = document.getElementById('chartTooltip');
+            const chartDots = document.querySelectorAll('.chart-dots');
+            const labelsGroup = document.querySelector('.chart-data-labels');
+
+            function updateDataLabelsFromDots() {
+                if (!labelsGroup) return;
+                // Clear existing labels
+                while (labelsGroup.firstChild) labelsGroup.removeChild(labelsGroup.firstChild);
+                // Render labels above each dot
+                document.querySelectorAll('.chart-dots').forEach((dot, i) => {
+                    const x = parseFloat(dot.getAttribute('cx')) || 0;
+                    const y = parseFloat(dot.getAttribute('cy')) || 0;
+                    const value = dot.getAttribute('data-value') || '';
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('class', 'chart-data-text');
+                    text.setAttribute('x', String(x));
+                    text.setAttribute('y', String(Math.max(14, y - 10)));
+                    text.textContent = value;
+                    labelsGroup.appendChild(text);
+                });
+            }
+            chartDots.forEach((dot, index) => {
+                // Ensure native tooltip also shows as fallback
+                dot.setAttribute('title', dot.getAttribute('data-value') || '');
+
+                dot.addEventListener('mouseenter', function(e) {
+                    this.setAttribute('r', '7');
+                    this.setAttribute('fill', 'rgba(255, 255, 255, 1)');
+                    const value = this.getAttribute('data-value');
+                    const dayLabelEl = document.querySelectorAll('.chart-labels span')[index];
+                    const dayLabel = dayLabelEl ? dayLabelEl.textContent : `Day ${index + 1}`;
+                    tooltip.textContent = `${dayLabel}: ${value}`;
+                    tooltip.style.display = 'block';
+                });
+
+                dot.addEventListener('mousemove', function(e) {
+                    const rect = chartContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    tooltip.style.left = `${x}px`;
+                    tooltip.style.top = `${y}px`;
+                });
+                
+                dot.addEventListener('mouseleave', function() {
+                    this.setAttribute('r', '5');
+                    this.setAttribute('fill', 'rgba(255, 193, 7, 1)');
+                    tooltip.style.display = 'none';
+                });
+            });
+
+            // Initial render of persistent labels
+            updateDataLabelsFromDots();
+
+            // Sidebar navigation
+            const sidebarIcons = document.querySelectorAll('.sidebar-icon');
+            sidebarIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    sidebarIcons.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Municipality selector functionality
+            const municipalitySelect = document.getElementById('municipalitySelect');
+            const currentMunicipality = document.getElementById('current-municipality');
+            
+            municipalitySelect.addEventListener('change', function() {
+                const selectedMunicipality = this.value;
+                currentMunicipality.textContent = selectedMunicipality;
+                
+                // Generate random weather data for demonstration
+                generateRandomWeatherData(selectedMunicipality);
+                updateBackgroundFromActiveCard();
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const options = municipalitySelect.options;
+                
+                for (let i = 0; i < options.length; i++) {
+                    const option = options[i];
+                    if (option.text.toLowerCase().includes(searchTerm)) {
+                        municipalitySelect.value = option.value;
+                        currentMunicipality.textContent = option.value;
+                        generateRandomWeatherData(option.value);
+                        updateBackgroundFromActiveCard();
+                        break;
+                    }
+                }
+            });
+
+            // Function to update rain types for all weather cards
+            function updateRainTypes() {
+                const weatherCards = document.querySelectorAll('.weather-card');
+                weatherCards.forEach(card => {
+                    const precipitationElement = card.querySelector('.precipitation');
+                    const rainTypeElement = card.querySelector('.rain-type');
+                    const iconElement = card.querySelector('.weather-icon');
+                    
+                    if (precipitationElement && rainTypeElement && iconElement) {
+                        const precipitationValue = parseFloat(precipitationElement.textContent);
+                        const rainType = getRainType(precipitationValue);
+                        const iconData = getWeatherIconAndClass(rainType);
+                        
+                        rainTypeElement.textContent = rainType;
+                        iconElement.textContent = iconData.icon;
+                        iconElement.className = `weather-icon ${iconData.class}`;
+                    }
+                });
+            }
+
+            //Make sure the data here will be fetch from the model
+            // Function to generate random weather data for each municipality
+            function generateRandomWeatherData(municipality) {
+                const weatherCards = document.querySelectorAll('.weather-card');
+                
+                // Update weather cards with random data
+                weatherCards.forEach((card, index) => {
+                    const randomPrecipitation = (Math.random() * 35).toFixed(1); // 0-35mm with decimals
+                    const rainType = getRainType(parseFloat(randomPrecipitation));
+                    const iconData = getWeatherIconAndClass(rainType);
+                    
+                    const icon = card.querySelector('.weather-icon');
+                    const precipitation = card.querySelector('.precipitation');
+                    const rainTypeElement = card.querySelector('.rain-type');
+                    
+                    icon.textContent = iconData.icon;
+                    icon.className = `weather-icon ${iconData.class}`;
+                    precipitation.textContent = `${randomPrecipitation}mm`;
+                    rainTypeElement.textContent = rainType;
+                });
+                
+                // Update chart with new random data
+                updateChart();
+                
+                // Update statistics
+                updateStatistics();
+                
+                // Sync background to current active card
+                updateBackgroundFromActiveCard();
+            }
+
+            function updateBackgroundFromActiveCard() {
+                const active = document.querySelector('.weather-card.today') || document.querySelector('.weather-card');
+                const typeEl = active ? active.querySelector('.rain-type') : null;
+                const type = (typeEl ? typeEl.textContent : 'Light') || 'Light';
+                setEffectsForRainType(type);
+            }
+
+            function setEffectsForRainType(type) {
+                const t = String(type || '').toLowerCase();
+                let cloudsCfg = { density: 1, speed: 1, opacity: 0.6, enabled: true };
+                let rainCfg   = { density: 1, speed: 1, length: 1, wind: 1, opacity: 0.8, enabled: true };
+                let sunCfg    = { enabled: true, intensity: 0.9, size: 1.2, center: false };
+                let windCfg   = { enabled: false, density: 0.4, speed: 1.0, opacity: 0.25, angle: -12 };
+                let boltCfg   = { enabled: false, frequency: 0.0, intensity: 0.8 };
+
+                if (t.includes('no')) {
+                    cloudsCfg = { density: 0.5, speed: 0.7, opacity: 0.35, enabled: true };
+                    rainCfg   = { density: 0.0, speed: 1.0, length: 1.0, wind: 0.0, opacity: 0.0, enabled: false };
+                    sunCfg    = { enabled: true, intensity: 1.0, size: 1.35, center: false };
+                    windCfg   = { enabled: false, density: 0.3, speed: 0.8, opacity: 0.18, angle: -10 };
+                    boltCfg   = { enabled: false, frequency: 0.0, intensity: 0.0 };
+                } else if (t.includes('torrential')) {
+                    cloudsCfg = { density: 2.6, speed: 1.3, opacity: 0.78, enabled: true };
+                    rainCfg   = { density: 3.2, speed: 1.9, length: 1.7, wind: 1.2, opacity: 1.0, enabled: true };
+                    sunCfg    = { enabled: false, intensity: 0.0, size: 1.0, center: false };
+                    windCfg   = { enabled: true, density: 2.0, speed: 2.0, opacity: 0.35, angle: -18 };
+                    boltCfg   = { enabled: true, frequency: 0.28, intensity: 1.0 };
+                } else if (t.includes('intense')) {
+                    cloudsCfg = { density: 1.9, speed: 1.2, opacity: 0.72, enabled: true };
+                    rainCfg   = { density: 2.4, speed: 1.5, length: 1.5, wind: 1.0, opacity: 0.95, enabled: true };
+                    sunCfg    = { enabled: false, intensity: 0.0, size: 1.0, center: false };
+                    windCfg   = { enabled: true, density: 1.4, speed: 1.6, opacity: 0.3, angle: -16 };
+                    boltCfg   = { enabled: true, frequency: 0.20, intensity: 0.85 };
+                } else if (t.includes('heavy')) {
+                    cloudsCfg = { density: 1.6, speed: 1.0, opacity: 0.67, enabled: true };
+                    rainCfg   = { density: 1.8, speed: 1.3, length: 1.3, wind: 0.8, opacity: 0.88, enabled: true };
+                    sunCfg    = { enabled: false, intensity: 0.0, size: 1.0, center: false };
+                    windCfg   = { enabled: true, density: 0.9, speed: 1.2, opacity: 0.28, angle: -14 };
+                    boltCfg   = { enabled: true, frequency: 0.08, intensity: 0.7 };
+                } else if (t.includes('moderate')) {
+                    cloudsCfg = { density: 1.2, speed: 0.95, opacity: 0.58, enabled: true };
+                    rainCfg   = { density: 1.0, speed: 1.0, length: 1.0, wind: 0.6, opacity: 0.78, enabled: true };
+                    sunCfg    = { enabled: true, intensity: 0.65, size: 1.1, center: false };
+                    windCfg   = { enabled: true, density: 0.6, speed: 1.0, opacity: 0.22, angle: -12 };
+                    boltCfg   = { enabled: false, frequency: 0.0, intensity: 0.0 };
+                } else if (t.includes('light')) {
+                    cloudsCfg = { density: 1.0, speed: 0.85, opacity: 0.48, enabled: true };
+                    rainCfg   = { density: 0.5, speed: 0.8, length: 0.9, wind: 0.4, opacity: 0.65, enabled: true };
+                    sunCfg    = { enabled: true, intensity: 0.95, size: 1.3, center: false };
+                    windCfg   = { enabled: false, density: 0.4, speed: 0.8, opacity: 0.18, angle: -10 };
+                    boltCfg   = { enabled: false, frequency: 0.0, intensity: 0.0 };
+                } else {
+                    cloudsCfg = { density: 0.6, speed: 0.7, opacity: 0.3, enabled: true };
+                    rainCfg   = { density: 0.0, speed: 1.0, length: 1.0, wind: 0.0, opacity: 0.0, enabled: false };
+                    sunCfg    = { enabled: true, intensity: 0.85, size: 1.2, center: false };
+                    windCfg   = { enabled: false, density: 0.3, speed: 0.8, opacity: 0.2, angle: -10 };
+                    boltCfg   = { enabled: false, frequency: 0.0, intensity: 0.0 };
+                }
+                if (window.weatherEffects && window.weatherEffects.clouds) window.weatherEffects.clouds.set(cloudsCfg);
+                if (window.weatherEffects && window.weatherEffects.rain) window.weatherEffects.rain.set(rainCfg);
+                if (window.weatherEffects && window.weatherEffects.sun) window.weatherEffects.sun.set(sunCfg);
+                if (window.weatherEffects && window.weatherEffects.wind) window.weatherEffects.wind.set(windCfg);
+                if (window.weatherEffects && window.weatherEffects.lightning) window.weatherEffects.lightning.set(boltCfg);
+            }
+
+            function updateChart() {
+                // Pull precipitation data from weather cards to match chart values
+                const precipEls = Array.from(document.querySelectorAll('.weather-card .precipitation'));
+                const dataPoints = precipEls.map(el => parseFloat((el.textContent || '0').replace(/mm/i, '').trim()) || 0);
+
+                // Guard: if not enough data, skip
+                if (dataPoints.length === 0) return;
+
+                const minValue = Math.min(...dataPoints);
+                const maxValue = Math.max(...dataPoints);
+                
+                // Update chart path and dots
+                const chartPath = document.querySelector('.chart-line-path');
+                const chartDots = document.querySelectorAll('.chart-dots');
+                
+                // Calculate positions based on chart dimensions
+                const chartWidth = 350;
+                const chartHeight = 120;
+                const startX = 50;
+                const stepX = chartWidth / 6;
+                
+                let pathD = `M ${startX}`;
+                
+                chartDots.forEach((dot, index) => {
+                    const x = startX + (index * stepX);
+                    const range = Math.max(1e-6, (maxValue - minValue));
+                    const norm = (dataPoints[index] - minValue) / range; // 0 at min, 1 at max
+                    const y = 140 - (norm * chartHeight); // Map to [20,140]
+                    
+                    dot.setAttribute('cx', x);
+                    dot.setAttribute('cy', y);
+                    dot.setAttribute('data-value', `${dataPoints[index]}mm`);
+                    // Keep native tooltip label updated
+                    dot.setAttribute('title', `${dataPoints[index]}mm`);
+                    
+                    if (index === 0) {
+                        pathD += ` ${y}`;
+                    } else {
+                        pathD += ` L ${x} ${y}`;
+                    }
+                });
+                
+                chartPath.setAttribute('d', pathD);
+                
+                // Update min/max labels and indicators
+                document.querySelector('.chart-min').textContent = `Min: ${minValue.toFixed(1)}mm`;
+                document.querySelector('.chart-max').textContent = `Max: ${maxValue.toFixed(1)}mm`;
+                
+                // Update Y-axis labels based on data range
+                const yLabels = document.querySelectorAll('.chart-labels-y');
+                const step = (maxValue - minValue) / 4;
+                yLabels.forEach((label, index) => {
+                    const value = (maxValue - (step * index)).toFixed(1);
+                    label.textContent = `${value}mm`;
+                });
+
+                // Update bottom day labels to match cards
+                const dayNames = Array.from(document.querySelectorAll('.weather-card .day-name')).map(el => el.textContent.trim());
+                const bottomLabels = document.querySelectorAll('.chart-labels span');
+                bottomLabels.forEach((el, i) => {
+                    if (dayNames[i]) el.textContent = dayNames[i];
+                });
+
+                // Refresh persistent data labels after updating dots
+                updateDataLabelsFromDots();
+            }
+
+            function updateStatistics() {
+                // Calculate and update statistics
+                const precipitationValues = Array.from(document.querySelectorAll('.precipitation'))
+                    .map(el => parseFloat(el.textContent));
+                
+                const average = (precipitationValues.reduce((a, b) => a + b, 0) / precipitationValues.length).toFixed(1);
+                const wetDays = precipitationValues.filter(val => val > 0.5).length; // Consider >0.5mm as wet
+                const maxValue = Math.max(...precipitationValues);
+                const minValue = Math.min(...precipitationValues);
+                const maxDayIndices = precipitationValues.map((val, idx) => val === maxValue ? idx : -1).filter(idx => idx !== -1);
+                
+                const dayNames = ['Tomorrow', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                const peakDays = maxDayIndices.map(idx => dayNames[idx]).join(' and ');
+                
+                // Determine overall variability range
+                const minType = getRainType(minValue);
+                const maxType = getRainType(maxValue);
+                let variabilityText = minType;
+                if (minType !== maxType) {
+                    variabilityText = `${minType} to ${maxType}`;
+                }
+                
+                // Update stat cards
+                document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = `${average}mm`;
+                document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = peakDays;
+                document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = wetDays;
+                document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = variabilityText;
+            }
+
+            // Initialize chart from current weather card values on load
+            updateChart();
+            updateBackgroundFromActiveCard();
+        });
+    </script>
+</body>
+</html>
