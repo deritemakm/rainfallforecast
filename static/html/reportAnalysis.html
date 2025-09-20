@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipalities Weather Dashboard</title>
+    <link rel="stylesheet" href="/static/cs/reportAnalysis.css" />
+</head>
+<body>
+    <canvas id="sunCanvas"></canvas>
+    <canvas id="cloudsCanvas"></canvas>
+    <canvas id="windCanvas"></canvas>
+    <canvas id="rainCanvas"></canvas>
+    <canvas id="lightningCanvas"></canvas>
+    <div class="nav-sidebar">
+        <a href="/static/html/index.html" class="nav-icon"><img src="/static/image/logo-icon.ico" alt="Logo icon"></a>
+        <hr class="horizontal-line">
+        <a href="/static/html/index.html" class="nav-icon"><img src="/static/image/home-icon.png" alt="home icon"></a>
+        <a href="/static/html/reportAnalysis.html" class="nav-icon"><img src="/static/image/active-repicon.png" alt="report icon"></a>
+        <a href="/static/html/about.html" class="nav-icon"><img src="/static/image/about-icon.png" alt="about icon"></a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>MUNICIPALITIES</h1>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search municipalities...">
+            <div class="search-icon"></div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="location-header">
+                <h2 class="location-name" id="current-municipality">Angeles</h2>
+                <select class="municipality-select" id="municipalitySelect">
+                    <option value="Angeles">Angeles City</option>
+                    <option value="Apalit">Apalit</option>
+                    <option value="Arayat">Arayat</option>
+                    <option value="Bacolor">Bacolor</option>
+                    <option value="Candaba">Candaba</option>
+                    <option value="Floridablanca">Floridablanca</option>
+                    <option value="Guagua">Guagua</option>
+                    <option value="Lubao">Lubao</option>
+                    <option value="Mabalacat">Mabalacat City</option>
+                    <option value="Macabebe">Macabebe</option>
+                    <option value="Magalang">Magalang</option>
+                    <option value="Masantol">Masantol</option>
+                    <option value="Mexico">Mexico</option>
+                    <option value="Minalin">Minalin</option>
+                    <option value="Porac">Porac</option>
+                    <option value="San Fernando">San Fernando City</option>
+                    <option value="San Luis">San Luis</option>
+                    <option value="San Simon">San Simon</option>
+                    <option value="Santa Ana">Santa Ana</option>
+                    <option value="Santa Rita">Santa Rita</option>
+                    <option value="Santo Tomas">Santo Tomas</option>
+                    <option value="Sasmuan">Sasmuan</option>
+                </select>
+            </div>
+
+            <div class="weather-grid">
+                <div class="weather-card today">
+                    <div class="day-name">Tomorrow</div>
+                    <div class="weather-icon">🌤️</div>
+                    <div class="precipitation">2mm</div>
+                    <div class="rain-type">Light</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Tuesday</div>
+                    <div class="weather-icon rain">🌦️</div>
+                    <div class="precipitation">4mm</div>
+                    <div class="rain-type">Moderate</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Wednesday</div>
+                    <div class="weather-icon rain">🌦️</div>
+                    <div class="precipitation">6mm</div>
+                    <div class="rain-type">Moderate</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Thursday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">8mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Friday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">10mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Saturday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">12mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+                
+                <div class="weather-card">
+                    <div class="day-name">Sunday</div>
+                    <div class="weather-icon rain">🌧️</div>
+                    <div class="precipitation">12mm</div>
+                    <div class="rain-type">Heavy</div>
+                </div>
+            </div>
+
+            <div class="bottom-section">
+                <div class="chart-container">
+                    <div class="chart-summary">
+                        <span class="chart-min">Min: 2mm</span>
+                        <span class="chart-max">Max: 12mm</span>
+                    </div>
+                    <div class="chart">
+                        <svg class="chart-svg" viewBox="0 0 420 160" overflow="visible">
+                            <!-- Grid lines -->
+                            <defs>
+                                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:rgba(255,255,255,0.8);stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:rgba(255,193,7,1);stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:rgba(255,255,255,0.8);stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Y-axis labels -->
+                            <text x="45" y="25" class="chart-labels-y">12mm</text>
+                            <text x="45" y="55" class="chart-labels-y">10mm</text>
+                            <text x="45" y="85" class="chart-labels-y">8mm</text>
+                            <text x="45" y="115" class="chart-labels-y">6mm</text>
+                            <text x="45" y="145" class="chart-labels-y">2mm</text>
+                            
+                            <!-- Grid lines -->
+                            <g class="chart-grid">
+                                <line x1="30" y1="20" x2="400" y2="20"></line>
+                                <line x1="30" y1="50" x2="400" y2="50"></line>
+                                <line x1="30" y1="80" x2="400" y2="80"></line>
+                                <line x1="30" y1="110" x2="400" y2="110"></line>
+                                <line x1="30" y1="140" x2="400" y2="140"></line>
+                            </g>
+                            
+                            <!-- Min/Max range indicators -->
+                            <line x1="30" y1="140" x2="400" y2="140" class="range-indicator range-min"></line>
+                            <line x1="30" y1="20" x2="400" y2="20" class="range-indicator range-max"></line>
+                            
+                            <!-- Line chart path: 2mm, 4mm, 6mm, 8mm, 10mm, 12mm, 12mm -->
+                            <path class="chart-line-path" d="M 50 140 L 110 120 L 170 110 L 230 80 L 290 50 L 350 20 L 380 20" stroke="url(#lineGradient)"></path>
+                            
+                            <!-- Data points with actual values -->
+                            <circle class="chart-dots" cx="50" cy="140" data-value="2mm"></circle>
+                            <circle class="chart-dots" cx="110" cy="120" data-value="4mm"></circle>
+                            <circle class="chart-dots" cx="170" cy="110" data-value="6mm"></circle>
+                            <circle class="chart-dots" cx="230" cy="80" data-value="8mm"></circle>
+                            <circle class="chart-dots" cx="290" cy="50" data-value="10mm"></circle>
+                            <circle class="chart-dots" cx="350" cy="20" data-value="12mm"></circle>
+                            <circle class="chart-dots" cx="380" cy="20" data-value="12mm"></circle>
+                            <!-- Persistent data labels holder -->
+                            <g class="chart-data-labels"></g>
+                        </svg>
+                    </div>
+                    <!-- Tooltip for chart data labels -->
+                    <div class="chart-tooltip" id="chartTooltip"></div>
+                    <div class="chart-labels">
+                        <span>Day 1</span>
+                        <span>Day 2</span>
+                        <span>Day 3</span>
+                        <span>Day 4</span>
+                        <span>Day 5</span>
+                        <span>Day 6</span>
+                        <span>Day 7</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Daily Average</div>
+                        <div class="stat-value">7.7mm</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Peak Day</div>
+                        <div class="stat-value">Sat and Sun</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Wet Days</div>
+                        <div class="stat-value">7</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">Variability</div>
+                        <div class="stat-value">Light to Heavy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/reportAnalysis.js"></script>
+</body>
+</html>

@@ -17,7 +17,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
     # within the 'static' folder, relative to where main.py is.
-    html_file_path = os.path.join("static", "index.html")
+    html_file_path = os.path.join("static", "html/index.html")
     if not os.path.exists(html_file_path):
         raise HTTPException(status_code=404, detail="index.html not found in static directory")
     with open(html_file_path, "r") as f:

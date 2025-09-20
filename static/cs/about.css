@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Municipalities Weather Dashboard</title>
-    <style>
-        * {
+ * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -13,7 +6,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-image: url(image/home-bg.png);
+            background-image: url(/static/image/home-bg.png);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -231,41 +224,3 @@
                 right: 10px;
             }
         }
-    </style>
-</head>
-<body>
-    <div class="nav-sidebar">
-        <a href="/static/index.html" class="nav-icon"><img src="/static/image/logo-icon.ico" alt="Logo icon"></a>
-        <hr class="horizontal-line">
-        <a href="/static/index.html" class="nav-icon"><img src="/static/image/home-icon.png" alt="home icon"></a>
-        <a href="/static/reportAnalysis.html" class="nav-icon"><img src="/static/image/report-icon.png" alt="report icon"></a>
-        <a href="/static/about.html" class="nav-icon"><img src="/static/image/active-abouticon.png" alt="about icon"></a>
-    </div>
-
-    <div class="container">
-        <div class="header">
-            <h1>ABOUT</h1>
-        </div>
-
-        <div class="weather-panel">
-        <div class="content-card">
-            <p>This Rainfall Forecasting Website is specialized weather forecasting platform that provides accurate and up-to-date 7-day rainfall forecasts for all municipalities in Pampanga Philippines. Designed to help residents, farmers, travelers, and local government units, our website offers detailed daily rainfall predictions according to each municipality.</p>
-        </div>
-
-        <div class="team-section">
-            <p class="team-intro">We are Computer Science students who created a Pampanga Rainfall Forecasting to provide accurate 7-day rainfall forecasts for all municipalities in Pampanga. Our goal is to help communities stay prepared through reliable and easy-to-access weather information.</p>
-            
-            <div class="team-members">
-                <div class="team-member">Aaron Bolado</div>
-                <div class="team-member">Loriel Coniconde</div>
-                <div class="team-member">Mikaella Gonzales</div>
-                <div class="team-member">Yohairra Ignacio</div>
-                <div class="team-member">Gerald Karandang</div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-     <script src="report.js"></script>
-</body>
-</html>
