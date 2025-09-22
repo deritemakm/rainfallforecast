@@ -40,7 +40,7 @@
     </nav>
 
     <div class="container">
-        <h2>Weather in 7 days</h2>
+        <h2 id="weather-panel-header">Weather in 7 days</h2>
         <div class="parent">
             <!--weather now-->
             <div class="panel-big">
@@ -124,35 +124,68 @@
         </div>
 
         <div class="map-container">
-            <div class="map-header">
-                <h2>Map of Pampanga</h2>
-                <select class="municipality-select" id="municipalitySelect">
-                    <option value="all">All Municipalities</option>
-                    <option value="angeles" selected>Angeles City</option>
-                    <option value="apalit">Apalit</option>
-                    <option value="arayat">Arayat</option>
-                    <option value="bacolor">Bacolor</option>
-                    <option value="candaba">Candaba</option>
-                    <option value="floridablanca">Floridablanca</option>
-                    <option value="guagua">Guagua</option>
-                    <option value="lubao">Lubao</option>
-                    <option value="mabalacat">Mabalacat</option>
-                    <option value="macabebe">Macabebe</option>
-                    <option value="magalang">Magalang</option>
-                    <option value="masantol">Masantol</option>
-                    <option value="mexico">Mexico</option>
-                    <option value="minalin">Minalin</option>
-                    <option value="porac">Porac</option>
-                    <option value="san-fernando">San Fernando</option>
-                    <option value="san-luis">San Luis</option>
-                    <option value="san-simon">San Simon</option>
-                    <option value="santa-ana">Santa Ana</option>
-                    <option value="santa-rita">Santa Rita</option>
-                    <option value="santo-tomas">Santo Tomas</option>
-                    <option value="sasmuan">Sasmuan</option>
-                </select>
-            </div>
+            <h2>Map of Pampanga</h2>
+                <div class="dropdown">
+                    <h2>Choose Municipality:</h2>
+                    <div class="select">
+                        <div
+                        class="selected"
+                        data-default="All Municipalities"
+                        data-one="San Fernando"
+                        data-two="Bacolor"
+                        data-three="Santa Rita"
+                        data-four="Guagua"
+                        data-five="Sasmuan"
+                        data-six="Lubao"
+                        data-seven="Floridablanca"
+                        data-eight="Porac"
+                        data-nine="Angeles"
+                        data-ten="Mabalacat"
+                        data-eleven="Magalang"
+                        data-twelve="Arayat"
+                        data-thirteen="Candaba"
+                        data-fourteen="San Luis"
+                        data-fifteen="San Simon"
+                        data-sixteen="Apalit"
+                        data-seventeen="Masantol"
+                        data-eighteen="Macabebe"
+                        data-nineteen="Minalin"
+                        data-twenty="Santo Tomas"
+                        data-twentyone="Mexico"
+                        data-twentytwo="Santa Ana"
+                        >
+                            <i data-feather="chevron-down"></i>
+                        </div>
 
+                        <div class="options">
+                            <div><input id="all" name="option" type="radio" checked><label class="option" for="all" data-txt="All"></label></div>
+                            <div><input id="option-1" name="option" type="radio"><label class="option" for="option-1" data-txt="San Fernando"></label></div>
+                            <div><input id="option-2" name="option" type="radio"><label class="option" for="option-2" data-txt="Bacolor"></label></div>
+                            <div><input id="option-3" name="option" type="radio"><label class="option" for="option-3" data-txt="Santa Rita"></label></div>
+                            <div><input id="option-4" name="option" type="radio"><label class="option" for="option-4" data-txt="Guagua"></label></div>
+                            <div><input id="option-5" name="option" type="radio"><label class="option" for="option-5" data-txt="Sasmuan"></label></div>
+                            <div><input id="option-6" name="option" type="radio"><label class="option" for="option-6" data-txt="Lubao"></label></div>
+                            <div><input id="option-7" name="option" type="radio"><label class="option" for="option-7" data-txt="Floridablanca"></label></div>
+                            <div><input id="option-8" name="option" type="radio"><label class="option" for="option-8" data-txt="Porac"></label></div>
+                            <div><input id="option-9" name="option" type="radio"><label class="option" for="option-9" data-txt="Angeles"></label></div>
+                            <div><input id="option-10" name="option" type="radio"><label class="option" for="option-10" data-txt="Mabalacat"></label></div>
+                            <div><input id="option-11" name="option" type="radio"><label class="option" for="option-11" data-txt="Magalang"></label></div>
+                            <div><input id="option-12" name="option" type="radio"><label class="option" for="option-12" data-txt="Arayat"></label></div>
+                            <div><input id="option-13" name="option" type="radio"><label class="option" for="option-13" data-txt="Candaba"></label></div>
+                            <div><input id="option-14" name="option" type="radio"><label class="option" for="option-14" data-txt="San Luis"></label></div>
+                            <div><input id="option-15" name="option" type="radio"><label class="option" for="option-15" data-txt="San Simon"></label></div>
+                            <div><input id="option-16" name="option" type="radio"><label class="option" for="option-16" data-txt="Apalit"></label></div>
+                            <div><input id="option-17" name="option" type="radio"><label class="option" for="option-17" data-txt="Masantol"></label></div>
+                            <div><input id="option-18" name="option" type="radio"><label class="option" for="option-18" data-txt="Macabebe"></label></div>
+                            <div><input id="option-19" name="option" type="radio"><label class="option" for="option-19" data-txt="Minalin"></label></div>
+                            <div><input id="option-20" name="option" type="radio"><label class="option" for="option-20" data-txt="Santo Tomas"></label></div>
+                            <div><input id="option-21" name="option" type="radio"><label class="option" for="option-21" data-txt="Mexico"></label></div>
+                            <div><input id="option-22" name="option" type="radio"><label class="option" for="option-22" data-txt="Santa Ana"></label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
             <div id="map"></div>
         </div>
     </div>
