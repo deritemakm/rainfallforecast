@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pampanga's Rainfall Condition Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-    <link rel="stylesheet" href="/static/style.css" />
-    <link rel="icon" href="/static/image/logo-icon.ico">
+    <link rel="stylesheet" href="/static/index.css" />
+    <link rel="icon" href="/static/weather-icons/logo.svg">
     
     <!--Font from Google-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,54 +14,118 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-     <div class="container">
-        <div class="nav-sidebar">
-            <a href="/" class="nav-icon"><img src="/static/image/logo-icon.ico" alt="Logo icon"></a>
-            <hr class="horizontal-line">
-            <a href="/static/index.html" class="nav-icon"><img src="/static/image/active-homeicon.png" alt="home icon"></a>
-            <a href="/static/report.html" class="nav-icon"><img src="/static/image/report-icon.png" alt="report icon"></a>
-            <a href="/static/about.html" class="nav-icon"><img src="/static/image/about-icon.png" alt="about icon"></a>
-        </div>
+    <canvas id="gradient-canvas"></canvas>
 
-        <div class="left-panel">
-            <div class="weather-card">
-                <div class="weather-card-title">Weather Now</div>
-                <div class="weather-icon-large"></div>
-                <div class="rainfall-amount"></div>
-                <div class="weather-status">
-                    <span class="weather-status-icon"></span>
-                    <span></span>
+    <nav class="navbar">
+        <ul class="navbar-menu">
+            <li class="navbar-item">
+                <a href="#" class="navbar-link">
+                    <i data-feather="home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="navbar-item">
+                <a href="#" class="navbar-link">
+                    <i data-feather="archive"></i>
+                    <span>Summary</span>
+                </a>
+            </li>
+            <li class="navbar-item">
+                <a href="#" class="navbar-link">
+                    <i data-feather="help-circle"></i>
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2>Weather in 7 days</h2>
+        <div class="parent">
+            <!--weather now-->
+            <div class="panel-big">
+                <div class="day-time">
+                    <div class="day">Monday</div>
+                    <div class="time">11:42 AM</div>
                 </div>
-                <div class="location-date">
-                    <span></span>
-                    <span></span>
-                </div>
-                <div class="location-date">
-                    <span></span>
-                    <span></span>
+                <img src="/static/weather-icons/torrential.svg" alt="" class="weather-status-icon">
+                <div class="rainfall-amt">33mm Rainfall</div>
+                <div class="rainfall-details">
+                    <div class="rainfall-type">
+                        <i data-feather="cloud"></i>
+                        <span>Heavy Rain</span>
+                    </div>
+                    <div class="location">
+                        <i data-feather="map-pin"></i>
+                        <span>Porac, Pampanga</span>
+                    </div>
+                    <div class="date">
+                        <i data-feather="calendar"></i>
+                        <span>June 09, 2025</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="forecast-section">
-                <div class="forecast-header">
-                    <div class="forecast-title">7 days Forecast</div>
-                    <select class="day-dropdown">
-                        <option>Day 7</option>
-                        <option>Day 6</option>
-                        <option>Day 5</option>
-                        <option>Day 4</option>
-                        <option>Day 3</option>
-                        <option>Day 2</option>
-                        <option>Day 1</option>
-                    </select>
+            <!--small panels-->
+            <div class="panel-small">
+                <div class="day-small">Tue</div>
+                <img src="weather-icons/intense.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">25mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Torrential</span>
                 </div>
-                <div class="forecast-list"></div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Wed</div>
+                <img src="weather-icons/heavy.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">9mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Heavy</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Thur</div>
+                <img src="weather-icons/moderate.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">6mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Moderate</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Fri</div>
+                <img src="weather-icons/logo.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">2mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Light</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Sat</div>
+                <img src="weather-icons/no-rain.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">0mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>No Rain</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Sun</div>
+                <img src="weather-icons/torrential.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">35mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Torrential</span>
+                </div>
             </div>
         </div>
 
-        <div class="main-content">
+        <div class="map-container">
             <div class="map-header">
-                <h2 class="map-title">Weather Condition Map</h2>
+                <h2>Map of Pampanga</h2>
                 <select class="municipality-select" id="municipalitySelect">
                     <option value="all">All Municipalities</option>
                     <option value="angeles" selected>Angeles City</option>
@@ -90,20 +154,18 @@
             </div>
 
             <div id="map"></div>
-
-            <div class="precipitation-legend">
-                <div class="legend-title">Precipitation</div>
-                <div class="legend-gradient-bar"></div>
-                <div class="legend-labels">
-                    <span>Extreme</span>
-                    <span>Heavy</span>
-                    <span>Moderate</span>
-                    <span>Light</span>
-                </div>
-            </div>
         </div>
     </div>
-    
+
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+    </script>
+    <script src="/static/gradient.js"></script>
+    <script>
+        const gradient = new Gradient();
+        gradient.initGradient("#gradient-canvas");
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="/static/home.js"></script>
 </body>

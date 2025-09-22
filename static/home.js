@@ -1,4 +1,5 @@
 // Weather Map Application - Optimized Version
+
 class WeatherMap {
     constructor() {
         this.map = null;
