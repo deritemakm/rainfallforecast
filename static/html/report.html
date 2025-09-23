@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Municipality Weather Report</title>
+  <link rel="stylesheet" href="/static/css/report.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Background Gradient -->
+  <canvas id="gradient-canvas"></canvas>
+
+  <!-- Report Container -->
+  <div class="report-container">
+    <header class="report-header">
+      <h1>Municipality Weather Report</h1>
+      <p class="date">September 23, 2025</p>
+    </header>
+
+    <section class="municipality-info">
+      <h2>Angeles City</h2>
+      <p class="coords">Lat: 15.1433, Lng: 120.5905</p>
+    </section>
+
+    <!-- Weather Summary Cards -->
+    <section class="summary-cards">
+      <div class="card big">
+        <h3>Current Weather</h3>
+        <img src="/static/weather-icons/heavy.svg" alt="Heavy Rain" class="weather-icon">
+        <p class="condition">Heavy Rain</p>
+        <p class="rainfall">45mm Rainfall</p>
+      </div>
+      <div class="card"><h3>Temperature</h3><p class="value">29°C</p></div>
+      <div class="card"><h3>Humidity</h3><p class="value">85%</p></div>
+      <div class="card"><h3>Wind Speed</h3><p class="value">15 km/h</p></div>
+    </section>
+
+    <!-- Forecast -->
+    <section class="forecast">
+      <h2>7-Day Forecast</h2>
+      <div class="forecast-grid">
+        <div class="forecast-day"><span class="day">Tue</span><img src="/static/weather-icons/moderate.svg"><span class="rainfall">22mm</span></div>
+        <div class="forecast-day"><span class="day">Wed</span><img src="/static/weather-icons/light.svg"><span class="rainfall">12mm</span></div>
+        <div class="forecast-day"><span class="day">Thu</span><img src="/static/weather-icons/none.svg"><span class="rainfall">0mm</span></div>
+        <!-- repeat days -->
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts">
+      <h2>Weather Analytics</h2>
+      <div class="chart-container">
+        <canvas id="rainfallChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="temperatureChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="humidityChart"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <script src="report.js"></script>
+  <script src="/static/javascript/gradient.js"></script>
+    <script>
+        window.gradient = new Gradient();
+        window.gradient.initGradient("#gradient-canvas");
+    </script>
+</body>
+</html>
