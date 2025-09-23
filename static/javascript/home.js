@@ -249,6 +249,7 @@ class WeatherMap {
     // Update weather card with selected municipality data
     updateWeatherCard(municipality) {
         this.selectedMunicipality = municipality;
+        this.updateBackgroundGradient(municipality.type);
         
         const now = new Date();
         const today = now.toLocaleDateString('en-US', { weekday: 'long' });
@@ -275,8 +276,15 @@ class WeatherMap {
     // Update forecast panels (small panels)
     updateForecastPanels(municipality) {
         const forecastData = this.generateForecastData(municipality);
-        const days = ['Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
-        
+        // Start from tomorrow
+        const allDays = ['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
+        const todayIndex = new Date().getDay(); // 0 = Sunday ... 6 = Saturday
+        const rotatedDays = [];
+
+        for (let i = 1; i <= 6; i++) {
+            rotatedDays.push(allDays[(todayIndex + i) % 7]);
+        }
+
         this.domElements.smallPanels?.forEach((panel, index) => {
             if (index < forecastData.length) {
                 const forecast = forecastData[index];
@@ -286,7 +294,7 @@ class WeatherMap {
                 const rainfallElement = panel.querySelector('.rainfall-amt');
                 const typeElement = panel.querySelector('.rainfall-type-small span');
                 
-                this.updateDOMElement(dayElement, days[index]);
+                this.updateDOMElement(dayElement, rotatedDays[index]);
                 this.updateDOMElement(rainfallElement, `${forecast.rainfall}mm`);
                 this.updateDOMElement(typeElement, forecast.condition);
                 
@@ -429,6 +437,26 @@ class WeatherMap {
         if (this.map) {
             this.map.remove();
         }
+    }
+
+    updateBackgroundGradient(type) {
+        const gradients = {
+            extreme: ["#2c3e50", "#000000", "#1a252f", "#434343"], // Torrential/Extreme
+            heavy: ["#1e3c72", "#2a5298", "#4e8bb5", "#9bbcd9"],   // Heavy Rain
+            moderate: ["#00c6ff", "#0072ff", "#5dade2", "#85c1e9"], // Moderate Rain
+            light: ["#6dd5ed", "#2193b0", "#a1c4fd", "#c2e9fb"],   // Light Rain
+            none: ["#fbc2eb", "#a6c1ee", "#f5f7fa", "#cfd9df"]     // No Rain
+        };
+
+        const colors = gradients[type] || gradients.light;
+
+        const root = document.documentElement;
+        root.style.setProperty("--gradient-color-1", colors[0]);
+        root.style.setProperty("--gradient-color-2", colors[1]);
+        root.style.setProperty("--gradient-color-3", colors[2]);
+        root.style.setProperty("--gradient-color-4", colors[3]);
+
+        console.log(`🌈 Gradient updated for weather type: ${type}`, colors);
     }
 }
 

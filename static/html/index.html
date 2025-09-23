@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pampanga's Rainfall Condition Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-    <link rel="stylesheet" href="/static/index.css" />
+    <link rel="stylesheet" href="/static/css/index.css" />
     <link rel="icon" href="/static/weather-icons/logo.svg">
     
     <!--Font from Google-->
@@ -19,19 +19,19 @@
     <nav class="navbar">
         <ul class="navbar-menu">
             <li class="navbar-item">
-                <a href="#" class="navbar-link">
+                <a href="index.html" class="navbar-link">
                     <i data-feather="home"></i>
                     <span>Home</span>
                 </a>
             </li>
             <li class="navbar-item">
-                <a href="#" class="navbar-link">
+                <a href="report.html" class="navbar-link">
                     <i data-feather="archive"></i>
                     <span>Summary</span>
                 </a>
             </li>
             <li class="navbar-item">
-                <a href="#" class="navbar-link">
+                <a href="About.html" class="navbar-link">
                     <i data-feather="help-circle"></i>
                     <span>About</span>
                 </a>
@@ -203,12 +203,12 @@
     <script>
         feather.replace();
     </script>
-    <script src="/static/gradient.js"></script>
+    <script src="/static/javascript/gradient.js"></script>
     <script>
-        const gradient = new Gradient();
-        gradient.initGradient("#gradient-canvas");
+        window.gradient = new Gradient();
+        window.gradient.initGradient("#gradient-canvas");
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="/static/home.js"></script>
+    <script src="/static/javascript/home.js"></script>
 </body>
 </html>
