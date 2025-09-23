@@ -7,14 +7,14 @@
 
 body {
   height: 100vh;
-  overflow: hidden;
   display: flex;
   justify-content: center;
+  overflow: hidden;
 }
 
 #gradient-canvas {
   position: fixed;
-  inset: 0; /* shorthand for top:0; right:0; bottom:0; left:0 */
+  inset: 0;
   width: 100%;
   height: 100%;
   z-index: -1;
@@ -33,6 +33,7 @@ body {
   border-radius: 24px;
   padding: 1rem 0;
   box-shadow: 0 0 40px rgba(0,0,0,0.03);
+  z-index: 1000;
 }
 
 .navbar-menu {
@@ -114,19 +115,24 @@ body {
 
 .container {
   flex: 1;
-  max-width: 1200px;
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  gap: 20px;
+  gap: 10px;
   margin-left: 120px;
-  height: 90vh;
+  height: 100vh;
+  overflow: hidden;
+  align-items: center;
 }
 
 .parent {
   display: flex;
   gap: 15px;
   align-items: flex-end;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  width: fit-content;
 }
 
 .panel-big {
@@ -139,6 +145,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  flex-shrink: 0;
 }
 
 h2 {
@@ -149,7 +156,7 @@ h2 {
 }
 
 #weather-panel-header {
-  padding-left: 20px;
+  margin-bottom: 5px;
 }
 
 .day-time {
@@ -161,7 +168,7 @@ h2 {
   text-align: center;
   font-size: 18px;
   font-weight: 500;
-  color: #d9d9d9;
+  color: #D9D9D9;
   margin-bottom: 15px;
 }
 
@@ -170,6 +177,14 @@ h2 {
   height: auto;
   display: block;
   margin-bottom: 15px;
+}
+
+.weather-status-icon-small {
+  width: 60px;
+  height: auto;
+  display: flex;
+  margin-bottom: 15px;
+  align-content: center;
 }
 
 .rainfall-amt {
@@ -199,13 +214,14 @@ h2 {
   background: #111;
   border-radius: 24px;
   padding: 15px;
-  width: 100px;
+  width: 110px;
   height: 260px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
   box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  flex-shrink: 0;
 }
 
 .day-small {
@@ -220,7 +236,7 @@ h2 {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
   color: #D9D9D9;
@@ -234,7 +250,7 @@ h2 {
 
 .panel-big, .panel-small {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer; /* shows it's interactive */
+  cursor: pointer;
 }
 
 .panel-big:hover, .panel-small:hover {
@@ -244,13 +260,56 @@ h2 {
 
 .map-container {
   display: flex;
-  justify-content: space-between;
-  padding: 20px;
+  flex-direction: column;
+  border-radius: 16px;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  /* Calculate width based on parent container content */
+  width: calc(320px + (110px * 6) + (15px * 6)); /* big panel + 6 small panels + gaps */
+  max-width: 1085px; /* Fallback max-width */
 }
 
-.map-header h2 {
-  margin: 0;
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
   color: #D9D9D9;
+  font-size: 16px;
+  flex-wrap: wrap;
+  gap: 15px;
+  flex-shrink: 0;
+}
+
+#map {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  border-radius: 24px;
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(27, 27, 29, 0.95);
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 14px;
+  color: #D9D9D9;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+
+.map-legend img {
+  width: 32px;
+  height: 32px;
 }
 
 .dropdown {
@@ -266,37 +325,48 @@ h2 {
   position: relative;
   transition: 300ms;
   color: #6a778e;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .selected {
   background-color: #1B1B1D;
-  padding: 5px;
+  padding: 8px 12px;
   margin-bottom: 3px;
-  border-radius: 5px;
+  border-radius: 8px;
   position: relative;
   z-index: 100000;
   font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-width: 180px;
+  border: 1px solid #333;
 }
 
 .options {
   display: flex;
   flex-direction: column;
-  border-radius: 5px;
-  padding: 5px;
+  border-radius: 8px;
+  padding: 8px;
   background-color: #1B1B1D;
-  position: relative;
-  top: -100px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   opacity: 0;
   transition: 300ms;
+  z-index: 100001;
+  transform: translateY(-10px);
+  border: 1px solid #333;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  max-height: 250px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .select:hover > .options {
   opacity: 1;
-  top: 0;
+  transform: translateY(0);
 }
 
 .select:hover > .selected .arrow {
@@ -348,29 +418,26 @@ h2 {
   content: attr(data-three);
 }
 
-
-/*.sun {
-  background: -webkit-linear-gradient(to right, #2893E0, #3999DF);
-  background: linear-gradient(to right, #7bb1d8, #134162);
-  width: 120px;
-  height: 120px;
-  border-radius: 60px;
-  display: inline;
-  position: absolute;
+.options::-webkit-scrollbar {
+  width: 6px;
 }
 
-.sunshine {
-  animation: sunshines 2s infinite;
+.options::-webkit-scrollbar-track {
+  background: rgba(106, 119, 142, 0.1);
+  border-radius: 6px;
+  margin: 4px 0;
 }
 
-@keyframes sunshines {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
+.options::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #6a778e, #4e5a6b);
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
 
-  100% {
-    transform: scale(1.4);
-    opacity: 0;
-  }
-} */
+.options::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #7d8ca5, #5a6779);
+}
+
+.options::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, #8a99b8, #677485);
+}

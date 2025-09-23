@@ -26,22 +26,34 @@ class WeatherMap {
         this.setupEventListeners();
         this.setupProvinceBoundary();
         this.showLoadingState();
+
+        this.pampangaMunicipalities = this.getStaticMunicipalityData();
+        this.updateMarkers();
+        this.updateInitialWeatherCard();
         
-        await this.fetchAndUpdateWeatherData();
-        this.startAutoUpdate();
+        // Uncomment below to use API
+        // await this.fetchAndUpdateWeatherData();
+        // this.startAutoUpdate();
     }
     
     // Cache frequently used DOM elements
     cacheDOMElements() {
         this.domElements = {
-            rainfallAmount: document.querySelector('.rainfall-amount'),
-            weatherStatus: document.querySelector('.weather-status span:last-child'),
-            locationDate: document.querySelector('.location-date span:last-child'),
-            weatherIcon: document.querySelector('.weather-icon-large'),
-            forecastList: document.querySelector('.forecast-list'),
-            dayDropdown: document.querySelector('.day-dropdown'),
-            municipalitySelect: document.getElementById('municipalitySelect'),
-            dateSpans: document.querySelectorAll('.location-date span:last-child')
+            // Main weather panel elements
+            day: document.querySelector('.day'),
+            time: document.querySelector('.time'),
+            weatherIcon: document.querySelector('.weather-status-icon'),
+            rainfallAmount: document.querySelector('.rainfall-amt'),
+            rainfallType: document.querySelector('.rainfall-type span'),
+            location: document.querySelector('.location span'),
+            date: document.querySelector('.date span'),
+            
+            // Small panels for forecast
+            smallPanels: document.querySelectorAll('.panel-small'),
+            
+            // Dropdown for municipality selection
+            municipalityOptions: document.querySelectorAll('.options input[type="radio"]'),
+            selectedDisplay: document.querySelector('.selected')
         };
     }
     
@@ -49,7 +61,7 @@ class WeatherMap {
     setupMap() {
         this.map = L.map('map', {
             center: [15.0794, 120.6200],
-            zoom: 11,
+            zoom: 5,
             minZoom: 10,
             maxZoom: 16,
             zoomControl: true,
@@ -57,11 +69,12 @@ class WeatherMap {
         });
         
         // Add tile layer with error handling
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 18
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OSM &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(this.map);
-        
+
         // Set map bounds
         const bounds = L.latLngBounds(
             L.latLng(14.75, 120.35),
@@ -78,8 +91,8 @@ class WeatherMap {
         ];
         
         L.polygon(pampangaBounds, {
-            color: '#4A9EFF',
-            weight: 3,
+            color: '#D9D9D9',
+            weight: 2,
             fillOpacity: 0.05,
             dashArray: '10, 5'
         }).addTo(this.map);
@@ -87,74 +100,76 @@ class WeatherMap {
     
     // Setup event listeners
     setupEventListeners() {
-        // Day dropdown change
-        this.domElements.dayDropdown?.addEventListener('change', (e) => {
-            const selectedIndex = 6 - e.target.selectedIndex;
-            this.updateForecastSection(this.selectedMunicipality, selectedIndex);
+        // Municipality dropdown change
+        this.domElements.municipalityOptions?.forEach(option => {
+            option.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.handleMunicipalityChange(e.target.id);
+                }
+            });
         });
         
-        // Municipality selector change
-        this.domElements.municipalitySelect?.addEventListener('change', (e) => {
-            this.handleMunicipalityChange(e.target.value);
-        });
-        
-        // Add interactive effects
+        // Weather panel hover effects
         this.addInteractiveEffects();
     }
     
     // Add interactive effects to UI elements
     addInteractiveEffects() {
-        // Weather cell hover effects
-        document.querySelectorAll('.weather-cell').forEach(cell => {
-            cell.addEventListener('mouseenter', () => {
-                cell.style.transform = 'scale(1.05)';
-                cell.style.transition = 'transform 0.2s ease';
+        // Weather panel hover effects
+        document.querySelectorAll('.panel-big, .panel-small').forEach(panel => {
+            panel.addEventListener('mouseenter', () => {
+                panel.style.transform = 'translateY(-8px) scale(1.03)';
+                panel.style.boxShadow = '0 8px 25px rgba(3, 87, 116, 0.5)';
             });
             
-            cell.addEventListener('mouseleave', () => {
-                cell.style.transform = 'scale(1)';
+            panel.addEventListener('mouseleave', () => {
+                panel.style.transform = 'translateY(0) scale(1)';
+                panel.style.boxShadow = panel.classList.contains('panel-big') ? 
+                    '0 4px 15px rgba(0,0,0,0.4)' : '0 2px 10px rgba(0,0,0,0.4)';
             });
         });
         
-        // Navigation icon click effects
-        document.querySelectorAll('.nav-icon').forEach(icon => {
-            icon.addEventListener('click', () => {
-                icon.style.transform = 'scale(0.9)';
+        // Navigation effects
+        document.querySelectorAll('.navbar-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                link.style.transform = 'scale(0.95)';
                 setTimeout(() => {
-                    icon.style.transform = 'scale(1)';
+                    link.style.transform = 'scale(1)';
                 }, 150);
             });
         });
     }
     
     // Handle municipality selection change
-    handleMunicipalityChange(selectedValue) {
-        let municipality = this.pampangaMunicipalities[0];
+    handleMunicipalityChange(selectedOptionId) {
+        let municipality = this.pampangaMunicipalities[0]; // Default to first municipality
         
-        if (selectedValue !== 'all') {
+        if (selectedOptionId === 'all') {
+            // Show all municipalities view
+            this.map.setView([15.0794, 120.6200], 11);
+            municipality = this.pampangaMunicipalities.find(m => m.name === "Porac") || this.pampangaMunicipalities[0];
+        } else {
+            // Find specific municipality
+            const optionIndex = parseInt(selectedOptionId.replace('option-', ''));
+            const municipalityNames = [
+                "San Fernando", "Bacolor", "Santa Rita", "Guagua", "Sasmuan", "Lubao",
+                "Floridablanca", "Porac", "Angeles City", "Mabalacat", "Magalang", "Arayat",
+                "Candaba", "San Luis", "San Simon", "Apalit", "Masantol", "Macabebe",
+                "Minalin", "Santo Tomas", "Mexico", "Santa Ana"
+            ];
+            
+            const selectedName = municipalityNames[optionIndex - 1];
             municipality = this.pampangaMunicipalities.find(m => 
-                m.name.toLowerCase().replace(' ', '-') === selectedValue ||
-                m.name.toLowerCase().includes(selectedValue.replace('-', ' '))
+                m.name === selectedName || m.name.includes(selectedName)
             ) || municipality;
-        }
-        
-        // Reset dropdown to Day 1
-        if (this.domElements.dayDropdown) {
-            this.domElements.dayDropdown.selectedIndex = 6;
-        }
-        
-        this.updateWeatherCardCurrentOnly(municipality);
-        this.updateMapView(selectedValue, municipality);
-    }
-    
-    // Update map view based on selection
-    updateMapView(selectedValue, municipality) {
-        if (selectedValue !== 'all') {
+            
+            // Center map on selected municipality
             this.map.setView(municipality.coords, 13);
             this.openMarkerPopup(municipality);
-        } else {
-            this.map.setView([15.0794, 120.6200], 11);
         }
+        
+        this.updateWeatherCard(municipality);
     }
     
     // Open popup for specific municipality marker
@@ -165,26 +180,6 @@ class WeatherMap {
                    Math.abs(latlng.lng - municipality.coords[1]) < 0.001;
         });
         if (marker) marker.openPopup();
-    }
-    
-    // Reimplemented with fastapi server
-    async fetchAndUpdateWeatherData() {
-        this.showLoadingState();
-        try {
-            const response = await fetch(this.BACKEND_WEATHER_API_URL);
-            
-            const processedData = await response.json(); // This will be the array of municipalities
-            console.log('Successfully fetched and parsed data:', processedData);
-
-            this.pampangaMunicipalities = processedData;
-
-            this.updateMarkers();
-            this.updateInitialWeatherCard();
-
-        } catch (error) {
-            console.error('Failed to fetch weather data from backend:', error);
-            this.showErrorState();
-        } 
     }
     
     // Update markers on map
@@ -207,7 +202,7 @@ class WeatherMap {
             }).addTo(this.map);
             
             marker.bindPopup(this.createPopupContent(municipality));
-            marker.on('click', () => this.updateWeatherCardCurrentOnly(municipality));
+            marker.on('click', () => this.updateWeatherCard(municipality));
             
             this.weatherMarkers.push(marker);
         });
@@ -215,58 +210,124 @@ class WeatherMap {
     
     // Create weather icon for marker
     createWeatherIcon(municipality) {
-        const color = this.getColorForType(municipality.type);
+        const iconPath = this.getIconPath(municipality.type);
+        
         return L.divIcon({
             className: 'weather-marker',
-            html: `<div style="background: ${color}; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${municipality.icon}</div>`,
+            html: `<div style="background: #111; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid #6a778e; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                <img src="${iconPath}" style="width: 18px; height: 18px;" alt="${municipality.type}">
+            </div>`,
             iconSize: [30, 30],
             iconAnchor: [15, 15]
         });
     }
     
-    // Get color for weather type
-    getColorForType(type) {
-        const colors = {
-            extreme: '#FF4444',
-            heavy: '#FF8800',
-            moderate: '#4A9EFF',
-            light: '#88CC88'
+    // Get icon path based on weather type
+    getIconPath(type) {
+        const iconMap = {
+            'extreme': '/static/weather-icons/torrential.svg',
+            'heavy': '/static/weather-icons/heavy.svg', 
+            'moderate': '/static/weather-icons/moderate.svg',
+            'light': '/static/weather-icons/logo.svg',
+            'none': '/static/weather-icons/no-rain.svg'
         };
-        return colors[type] || colors.light;
+        return iconMap[type] || iconMap.light;
     }
     
     // Create popup content
     createPopupContent(municipality) {
         return `
-            <div class="weather-popup">
-                <h3>${municipality.name}</h3>
-                <p><strong>${municipality.rainfall} mm</strong></p>
-                <p>${municipality.condition}</p>
-                <p style="font-size: 24px;">${municipality.icon}</p>
+            <div class="weather-popup" style="text-align: center; padding: 10px;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">${municipality.name}</h3>
+                <div style="font-size: 18px; font-weight: bold; color: #005280;">${municipality.rainfall}mm Rainfall</div>
+                <div style="color: #666; margin: 5px 0;">${municipality.condition}</div>
+                <img src="${this.getIconPath(municipality.type)}" style="width: 32px; height: 32px; margin-top: 5px;" alt="${municipality.type}">
             </div>
         `;
     }
     
-    // Update weather card with current weather only
-    updateWeatherCardCurrentOnly(municipality) {
+    // Update weather card with selected municipality data
+    updateWeatherCard(municipality) {
         this.selectedMunicipality = municipality;
         
-        const todayDate = new Date().toLocaleDateString(undefined, { 
-            month: 'short', day: 'numeric', year: 'numeric' 
-        });
+        const now = new Date();
+        const today = now.toLocaleDateString('en-US', { weekday: 'long' });
+        const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const date = now.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
         
-        // Update DOM elements
-        this.updateDOMElement(this.domElements.rainfallAmount, `${municipality.rainfall} mm Rainfall`);
-        this.updateDOMElement(this.domElements.weatherStatus, municipality.condition);
-        this.updateDOMElement(this.domElements.locationDate, `${municipality.name}, Pampanga`);
-        this.updateDOMElement(this.domElements.weatherIcon, municipality.icon);
+        // Update main weather panel
+        this.updateDOMElement(this.domElements.day, today);
+        this.updateDOMElement(this.domElements.time, time);
+        this.updateDOMElement(this.domElements.rainfallAmount, `${municipality.rainfall}mm Rainfall`);
+        this.updateDOMElement(this.domElements.rainfallType, municipality.condition);
+        this.updateDOMElement(this.domElements.location, `${municipality.name}, Pampanga`);
+        this.updateDOMElement(this.domElements.date, date);
         
-        // Update date spans
-        if (this.domElements.dateSpans.length > 1) {
-            this.domElements.dateSpans[1].textContent = todayDate;
+        // Update main weather icon
+        if (this.domElements.weatherIcon) {
+            this.domElements.weatherIcon.src = this.getIconPath(municipality.type);
         }
         
-        this.updateForecastSection(municipality, 0);
+        // Update forecast panels with sample data
+        this.updateForecastPanels(municipality);
+    }
+    
+    // Update forecast panels (small panels)
+    updateForecastPanels(municipality) {
+        const forecastData = this.generateForecastData(municipality);
+        const days = ['Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
+        
+        this.domElements.smallPanels?.forEach((panel, index) => {
+            if (index < forecastData.length) {
+                const forecast = forecastData[index];
+                
+                const dayElement = panel.querySelector('.day-small');
+                const iconElement = panel.querySelector('.weather-status-icon-small');
+                const rainfallElement = panel.querySelector('.rainfall-amt');
+                const typeElement = panel.querySelector('.rainfall-type-small span');
+                
+                this.updateDOMElement(dayElement, days[index]);
+                this.updateDOMElement(rainfallElement, `${forecast.rainfall}mm`);
+                this.updateDOMElement(typeElement, forecast.condition);
+                
+                if (iconElement) {
+                    iconElement.src = this.getIconPath(forecast.type);
+                }
+            }
+        });
+    }
+    
+    // Generate sample forecast data
+    generateForecastData(municipality) {
+        const baseRainfall = municipality.rainfall;
+        const forecasts = [];
+        
+        for (let i = 0; i < 6; i++) {
+            const variation = (Math.random() - 0.5) * 20; // ±10mm variation
+            const rainfall = Math.max(0, Math.round(baseRainfall + variation));
+            
+            let type, condition;
+            if (rainfall >= 30) {
+                type = 'extreme';
+                condition = 'Torrential';
+            } else if (rainfall >= 20) {
+                type = 'heavy';
+                condition = 'Heavy';
+            } else if (rainfall >= 10) {
+                type = 'moderate';
+                condition = 'Moderate';
+            } else if (rainfall > 0) {
+                type = 'light';
+                condition = 'Light';
+            } else {
+                type = 'none';
+                condition = 'No Rain';
+            }
+            
+            forecasts.push({ rainfall, type, condition });
+        }
+        
+        return forecasts;
     }
     
     // Update DOM element safely
@@ -274,105 +335,66 @@ class WeatherMap {
         if (element) element.textContent = content;
     }
     
-    // Update forecast section
-    updateForecastSection(municipality, dayIndex = 0) {
-        if (!municipality.forecast?.length || !this.domElements.forecastList) return;
-        
-        let html = this.generateForecastItems(municipality);
-        html += this.generateSelectedDayItem(municipality, dayIndex);
-        
-        this.domElements.forecastList.innerHTML = html;
-        this.addForecastInteractivity();
-    }
-    
-    // Generate forecast items HTML
-    generateForecastItems(municipality) {
-        let html = '';
-        for (let i = 1; i < Math.min(7, municipality.forecast.length); i++) {
-            const forecast = municipality.forecast[i];
-            const date = new Date(forecast.date);
-            
-            html += `
-                <div class="forecast-item">
-                    <div class="forecast-icon">${this.getWeatherIcon(forecast.weathercode)}</div>
-                    <div class="forecast-details">
-                        <div class="forecast-rain">${forecast.rain} mm</div>
-                        <div class="forecast-date">${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                    </div>
-                    <div class="forecast-day">${this.getDayOfWeek(forecast.date)}</div>
-                </div>
-            `;
-        }
-        return html;
-    }
-    
-    // Generate selected day item HTML
-    generateSelectedDayItem(municipality, dayIndex) {
-        const selectedForecast = municipality.forecast[dayIndex];
-        if (!selectedForecast) return '';
-        
-        const labels = ['Today', 'Tomorrow'];
-        const label = labels[dayIndex] || this.getDayOfWeek(selectedForecast.date);
-        
-        return `
-            <div class="forecast-item tomorrow-special">
-                <div class="forecast-icon">${this.getWeatherIcon(selectedForecast.weathercode)}</div>
-                <div class="forecast-details">
-                    <div class="tomorrow-text">${label}</div>
-                    <div style="font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 2px;">${selectedForecast.rain} mm</div>
-                    <div class="tomorrow-desc">${municipality.condition}</div>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Add interactivity to forecast items
-    addForecastInteractivity() {
-        document.querySelectorAll('.forecast-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.forecast-item').forEach(i => i.style.background = '');
-                this.style.background = 'rgba(79, 172, 254, 0.1)';
-            });
-        });
-    }
-    
-    // Get day of week from date string
-    getDayOfWeek(dateString) {
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        return days[new Date(dateString).getDay()];
-    }
-    
-    // Get weather icon from weather code
-    getWeatherIcon(weathercode) {
-        if (weathercode >= 95) return '⛈️'; // Thunderstorm
-        if (weathercode >= 80) return '🌧️'; // Rain showers
-        if (weathercode >= 60) return '🌧️'; // Rain
-        if (weathercode >= 51) return '🌦️'; // Drizzle
-        if (weathercode >= 1) return '🌤️'; // Partly cloudy
-        return '☀️'; // Clear
-    }
-    
     // Update initial weather card
     updateInitialWeatherCard() {
-        const angeles = this.pampangaMunicipalities.find(m => m.name === "Angeles City");
-        this.updateWeatherCardCurrentOnly(angeles || this.pampangaMunicipalities[0]);
+        const porac = this.pampangaMunicipalities.find(m => m.name === "Porac");
+        this.updateWeatherCard(porac || this.pampangaMunicipalities[0]);
     }
     
     // Show loading state
     showLoadingState() {
         this.updateDOMElement(this.domElements.rainfallAmount, 'Loading...');
-        this.updateDOMElement(this.domElements.weatherStatus, '');
-        this.updateDOMElement(this.domElements.locationDate, '');
-        this.updateDOMElement(this.domElements.weatherIcon, '');
-        if (this.domElements.forecastList) {
-            this.domElements.forecastList.innerHTML = '<div style="color:white;padding:10px;">Loading forecast...</div>';
-        }
+        this.updateDOMElement(this.domElements.rainfallType, '');
+        this.updateDOMElement(this.domElements.location, '');
     }
     
-    // Show error state
-    showErrorState() {
-        this.updateDOMElement(this.domElements.rainfallAmount, 'Error loading data');
-        this.updateDOMElement(this.domElements.weatherStatus, 'Please try again');
+    // Get static municipality data (replace with API call when ready)
+    getStaticMunicipalityData() {
+        return [
+            { name: "Angeles City", coords: [15.14336011, 120.59051810], rainfall: 45, condition: "Heavy Rain", type: "extreme" },
+            { name: "Apalit", coords: [14.94997653, 120.75675619], rainfall: 22, condition: "Moderate Rain", type: "moderate" },
+            { name: "Arayat", coords: [15.16593002, 120.78159403], rainfall: 28, condition: "Moderate Rain", type: "moderate" },
+            { name: "Bacolor", coords: [15.03378028, 120.62071385], rainfall: 38, condition: "Heavy Rain", type: "heavy" },
+            { name: "Candaba", coords: [15.10580611, 120.87269784], rainfall: 18, condition: "Light Rain", type: "light" },
+            { name: "Floridablanca", coords: [14.93617972, 120.48914087], rainfall: 41, condition: "Heavy Rain", type: "heavy" },
+            { name: "Guagua", coords: [14.9661957, 120.63310490], rainfall: 35, condition: "Heavy Rain", type: "heavy" },
+            { name: "Lubao", coords: [14.90217987, 120.55094493], rainfall: 12, condition: "Light Rain", type: "light" },
+            { name: "Mabalacat", coords: [15.22089063, 120.57105409], rainfall: 33, condition: "Heavy Rain", type: "heavy" },
+            { name: "Macabebe", coords: [14.91324103, 120.67347402], rainfall: 19, condition: "Light Rain", type: "light" },
+            { name: "Magalang", coords: [15.2478282, 120.68086630], rainfall: 42, condition: "Heavy Rain", type: "heavy" },
+            { name: "Masantol", coords: [14.85194769, 120.67746495], rainfall: 15, condition: "Light Rain", type: "light" },
+            { name: "Mexico", coords: [15.06633515, 120.71217193], rainfall: 25, condition: "Moderate Rain", type: "moderate" },
+            { name: "Minalin", coords: [14.95365406, 120.70039268], rainfall: 21, condition: "Moderate Rain", type: "moderate" },
+            { name: "Porac", coords: [15.1241602, 120.45899588], rainfall: 33, condition: "Heavy Rain", type: "heavy" },
+            { name: "San Fernando", coords: [15.05961285, 120.65646538], rainfall: 25, condition: "Intense", type: "heavy" },
+            { name: "San Luis", coords: [15.01880145, 120.81164009], rainfall: 17, condition: "Light Rain", type: "light" },
+            { name: "San Simon", coords: [14.9940879, 120.77563412], rainfall: 23, condition: "Moderate Rain", type: "moderate" },
+            { name: "Santa Ana", coords: [15.10942466, 120.77008266], rainfall: 29, condition: "Moderate Rain", type: "moderate" },
+            { name: "Santa Rita", coords: [15.00866765, 120.60767406], rainfall: 31, condition: "Heavy Rain", type: "heavy" },
+            { name: "Santo Tomas", coords: [15.00884912, 120.71039539], rainfall: 26, condition: "Moderate Rain", type: "moderate" },
+            { name: "Sasmuan", coords: [14.88693929, 120.61290981], rainfall: 14, condition: "Light Rain", type: "light" }
+        ];
+    }
+    
+    // Fetch weather data from API (currently disabled, using static data)
+    async fetchAndUpdateWeatherData() {
+        this.showLoadingState();
+        try {
+            const response = await fetch(this.BACKEND_WEATHER_API_URL);
+            const processedData = await response.json();
+            console.log('Successfully fetched weather data:', processedData);
+            
+            this.pampangaMunicipalities = processedData;
+            this.updateMarkers();
+            this.updateInitialWeatherCard();
+            
+        } catch (error) {
+            console.error('Failed to fetch weather data from backend:', error);
+            // Fallback to static data
+            this.pampangaMunicipalities = this.getStaticMunicipalityData();
+            this.updateMarkers();
+            this.updateInitialWeatherCard();
+        }
     }
     
     // Start auto-update interval
@@ -408,32 +430,6 @@ class WeatherMap {
             this.map.remove();
         }
     }
-    
-    // Pampanga municipalities data
-    pampangaMunicipalities = [
-        { name: "Angeles City", coords: [15.14336011, 120.59051810], rainfall: 45, condition: "Heavy Rain", icon: "⛈️", type: "extreme" },
-        { name: "Apalit", coords: [14.94997653, 120.75675619], rainfall: 22, condition: "Moderate Rain", icon: "🌧️", type: "moderate" },
-        { name: "Arayat", coords: [15.16593002, 120.78159403], rainfall: 28, condition: "Moderate Rain", icon: "🌧️", type: "moderate" },
-        { name: "Bacolor", coords: [15.03378028, 120.62071385], rainfall: 38, condition: "Heavy Rain", icon: "⛈️", type: "heavy" },
-        { name: "Candaba", coords: [15.10580611, 120.87269784], rainfall: 18, condition: "Light Rain", icon: "🌦️", type: "light" },
-        { name: "Floridablanca", coords: [14.93617972, 120.48914087], rainfall: 41, condition: "Heavy Rain", icon: "⛈️", type: "heavy" },
-        { name: "Guagua", coords: [14.9661957, 120.63310490], rainfall: 35, condition: "Heavy Rain", icon: "⛈️", type: "heavy" },
-        { name: "Lubao", coords: [14.90217987, 120.55094493], rainfall: 12, condition: "Light Rain", icon: "🌦️", type: "light" },
-        { name: "Mabalacat", coords: [15.22089063, 120.57105409], rainfall: 33, condition: "Heavy Rain", icon: "⛈️", type: "heavy" },
-        { name: "Macabebe", coords: [14.91324103, 120.67347402], rainfall: 19, condition: "Light Rain", icon: "🌦️", type: "light" },
-        { name: "Magalang", coords: [15.2478282, 120.68086630], rainfall: 42, condition: "Heavy Rain", icon: "⛈️", type: "heavy" },
-        { name: "Masantol", coords: [14.85194769, 120.67746495], rainfall: 15, condition: "Light Rain", icon: "🌦️", type: "light" },
-        { name: "Mexico", coords: [15.06633515, 120.71217193], rainfall: 25, condition: "Moderate Rain", icon: "🌧️", type: "moderate" },
-        { name: "Minalin", coords: [14.95365406, 120.70039268], rainfall: 21, condition: "Moderate Rain", icon: "🌧️", type: "moderate" },
-        { name: "Porac", coords: [15.1241602, 120.45899588], rainfall: 52, condition: "Extreme Rain", icon: "⛈️", type: "extreme" },
-        { name: "San Fernando", coords: [15.05961285, 120.65646538], rainfall: 36, condition: "Heavy Rain", icon: "⛈️", type: "heavy" },
-        { name: "San Luis", coords: [15.01880145, 120.81164009], rainfall: 17, condition: "Light Rain", icon: "🌦️", type: "light" },
-        { name: "San Simon", coords: [14.9940879, 120.77563412], rainfall: 23, condition: "Moderate Rain", icon: "🌧️", type: "moderate" },
-        { name: "Santa Ana", coords: [15.10942466, 120.77008266], rainfall: 29, condition: "Moderate Rain", icon: "🌧️", type: "moderate" },
-        { name: "Santa Rita", coords: [15.00866765, 120.60767406], rainfall: 31, condition: "Heavy Rain", icon: "⛈️", type: "heavy" },
-        { name: "Santo Tomas", coords: [15.00884912, 120.71039539], rainfall: 26, condition: "Moderate Rain", icon: "🌧️", type: "moderate" },
-        { name: "Sasmuan", coords: [14.88693929, 120.61290981], rainfall: 14, condition: "Light Rain", icon: "🌦️", type: "light" }
-    ];
 }
 
 // Initialize the weather map application

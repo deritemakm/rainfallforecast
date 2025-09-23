@@ -124,7 +124,8 @@
         </div>
 
         <div class="map-container">
-            <h2>Map of Pampanga</h2>
+            <div class="map-header">
+                <h2>Map of Pampanga</h2>
                 <div class="dropdown">
                     <h2>Choose Municipality:</h2>
                     <div class="select">
@@ -158,7 +159,7 @@
                         </div>
 
                         <div class="options">
-                            <div><input id="all" name="option" type="radio" checked><label class="option" for="all" data-txt="All"></label></div>
+                            <div><input id="all" name="option" type="radio" checked><label class="option" for="all" data-txt="All Municipalities"></label></div>
                             <div><input id="option-1" name="option" type="radio"><label class="option" for="option-1" data-txt="San Fernando"></label></div>
                             <div><input id="option-2" name="option" type="radio"><label class="option" for="option-2" data-txt="Bacolor"></label></div>
                             <div><input id="option-3" name="option" type="radio"><label class="option" for="option-3" data-txt="Santa Rita"></label></div>
@@ -185,8 +186,16 @@
                     </div>
                 </div>
             </div>
-            </div>
+
             <div id="map"></div>
+
+            <div class="map-legend">
+                <div><img src="/static/weather-icons/torrential.svg" alt="Torrential"> Torrential</div>
+                <div><img src="/static/weather-icons/intense.svg" alt="Intense"> Intense</div>
+                <div><img src="/static/weather-icons/heavy.svg" alt="Heavy"> Heavy</div>
+                <div><img src="/static/weather-icons/moderate.svg" alt="Moderate"> Moderate</div>
+                <div><img src="/static/weather-icons/no-rain.svg" alt="Light"> Light</div>
+            </div>
         </div>
     </div>
 
