@@ -4,69 +4,383 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Municipality Weather Report</title>
-  <link rel="stylesheet" href="/static/css/report.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="/static/css/report.css" />
+  <link rel="icon" href="/static/weather-icons/logo.svg">
+  
+  <!--Font from Google-->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Background Gradient -->
   <canvas id="gradient-canvas"></canvas>
 
-  <!-- Report Container -->
-  <div class="report-container">
-    <header class="report-header">
-      <h1>Municipality Weather Report</h1>
-      <p class="date">September 23, 2025</p>
-    </header>
+  <nav class="navbar">
+        <ul class="navbar-menu">
+            <li class="navbar-item">
+                <a href="index.html" class="navbar-link">
+                    <i data-feather="home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="navbar-item">
+                <a href="report.html" class="navbar-link">
+                    <i data-feather="archive"></i>
+                    <span>Summary</span>
+                </a>
+            </li>
+            <li class="navbar-item">
+                <a href="about.html" class="navbar-link">
+                    <i data-feather="help-circle"></i>
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-    <section class="municipality-info">
-      <h2>Angeles City</h2>
-      <p class="coords">Lat: 15.1433, Lng: 120.5905</p>
-    </section>
+  <div class="container">
+        <div class="weather-panel-header">
+            <h1>Angeles City</h1>
+            <div class="dropdown">
+                  <h2>Choose Municipality:</h2>
+                  <div class="select">
+                      <div
+                      class="selected"
+                      data-default="All Municipalities"
+                      data-one="San Fernando"
+                      data-two="Bacolor"
+                      data-three="Santa Rita"
+                      data-four="Guagua"
+                      data-five="Sasmuan"
+                      data-six="Lubao"
+                      data-seven="Floridablanca"
+                      data-eight="Porac"
+                      data-nine="Angeles"
+                      data-ten="Mabalacat"
+                      data-eleven="Magalang"
+                      data-twelve="Arayat"
+                      data-thirteen="Candaba"
+                      data-fourteen="San Luis"
+                      data-fifteen="San Simon"
+                      data-sixteen="Apalit"
+                      data-seventeen="Masantol"
+                      data-eighteen="Macabebe"
+                      data-nineteen="Minalin"
+                      data-twenty="Santo Tomas"
+                      data-twentyone="Mexico"
+                      data-twentytwo="Santa Ana"
+                      >
+                          <i data-feather="chevron-down"></i>
+                      </div>
 
-    <!-- Weather Summary Cards -->
-    <section class="summary-cards">
-      <div class="card big">
-        <h3>Current Weather</h3>
-        <img src="/static/weather-icons/heavy.svg" alt="Heavy Rain" class="weather-icon">
-        <p class="condition">Heavy Rain</p>
-        <p class="rainfall">45mm Rainfall</p>
-      </div>
-      <div class="card"><h3>Temperature</h3><p class="value">29°C</p></div>
-      <div class="card"><h3>Humidity</h3><p class="value">85%</p></div>
-      <div class="card"><h3>Wind Speed</h3><p class="value">15 km/h</p></div>
-    </section>
+                      <div class="options">
+                          <div><input id="all" name="option" type="radio" checked><label class="option" for="all" data-txt="All Municipalities"></label></div>
+                          <div><input id="option-1" name="option" type="radio"><label class="option" for="option-1" data-txt="San Fernando"></label></div>
+                          <div><input id="option-2" name="option" type="radio"><label class="option" for="option-2" data-txt="Bacolor"></label></div>
+                          <div><input id="option-3" name="option" type="radio"><label class="option" for="option-3" data-txt="Santa Rita"></label></div>
+                          <div><input id="option-4" name="option" type="radio"><label class="option" for="option-4" data-txt="Guagua"></label></div>
+                          <div><input id="option-5" name="option" type="radio"><label class="option" for="option-5" data-txt="Sasmuan"></label></div>
+                          <div><input id="option-6" name="option" type="radio"><label class="option" for="option-6" data-txt="Lubao"></label></div>
+                          <div><input id="option-7" name="option" type="radio"><label class="option" for="option-7" data-txt="Floridablanca"></label></div>
+                          <div><input id="option-8" name="option" type="radio"><label class="option" for="option-8" data-txt="Porac"></label></div>
+                          <div><input id="option-9" name="option" type="radio"><label class="option" for="option-9" data-txt="Angeles"></label></div>
+                          <div><input id="option-10" name="option" type="radio"><label class="option" for="option-10" data-txt="Mabalacat"></label></div>
+                          <div><input id="option-11" name="option" type="radio"><label class="option" for="option-11" data-txt="Magalang"></label></div>
+                          <div><input id="option-12" name="option" type="radio"><label class="option" for="option-12" data-txt="Arayat"></label></div>
+                          <div><input id="option-13" name="option" type="radio"><label class="option" for="option-13" data-txt="Candaba"></label></div>
+                          <div><input id="option-14" name="option" type="radio"><label class="option" for="option-14" data-txt="San Luis"></label></div>
+                          <div><input id="option-15" name="option" type="radio"><label class="option" for="option-15" data-txt="San Simon"></label></div>
+                          <div><input id="option-16" name="option" type="radio"><label class="option" for="option-16" data-txt="Apalit"></label></div>
+                          <div><input id="option-17" name="option" type="radio"><label class="option" for="option-17" data-txt="Masantol"></label></div>
+                          <div><input id="option-18" name="option" type="radio"><label class="option" for="option-18" data-txt="Macabebe"></label></div>
+                          <div><input id="option-19" name="option" type="radio"><label class="option" for="option-19" data-txt="Minalin"></label></div>
+                          <div><input id="option-20" name="option" type="radio"><label class="option" for="option-20" data-txt="Santo Tomas"></label></div>
+                          <div><input id="option-21" name="option" type="radio"><label class="option" for="option-21" data-txt="Mexico"></label></div>
+                          <div><input id="option-22" name="option" type="radio"><label class="option" for="option-22" data-txt="Santa Ana"></label></div>
+                      </div>
+                  </div>
+              </div>
+        </div>
 
-    <!-- Forecast -->
-    <section class="forecast">
-      <h2>7-Day Forecast</h2>
-      <div class="forecast-grid">
-        <div class="forecast-day"><span class="day">Tue</span><img src="/static/weather-icons/moderate.svg"><span class="rainfall">22mm</span></div>
-        <div class="forecast-day"><span class="day">Wed</span><img src="/static/weather-icons/light.svg"><span class="rainfall">12mm</span></div>
-        <div class="forecast-day"><span class="day">Thu</span><img src="/static/weather-icons/none.svg"><span class="rainfall">0mm</span></div>
-        <!-- repeat days -->
-      </div>
-    </section>
+        <div class="parent">
+            <!--weather now-->
+            <div class="panel-big">
+                <div class="day-time">
+                    <div class="day">Monday</div>
+                    <div class="time">11:42 AM</div>
+                </div>
+                <img src="/static/weather-icons/torrential.svg" alt="" class="weather-status-icon">
+                <div class="rainfall-amt">33mm Rainfall</div>
+                <div class="rainfall-details">
+                    <div class="rainfall-type">
+                        <i data-feather="cloud"></i>
+                        <span>Heavy Rain</span>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Charts Section -->
-    <section class="charts">
-      <h2>Weather Analytics</h2>
-      <div class="chart-container">
-        <canvas id="rainfallChart"></canvas>
-      </div>
-      <div class="chart-container">
-        <canvas id="temperatureChart"></canvas>
-      </div>
-      <div class="chart-container">
-        <canvas id="humidityChart"></canvas>
-      </div>
-    </section>
-  </div>
+            <!--small panels-->
+            <div class="panel-small">
+                <div class="day-small">Tue</div>
+                <img src="/static/weather-icons/intense.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">25mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Torrential</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Wed</div>
+                <img src="/static/weather-icons/heavy.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">9mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Heavy</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Thur</div>
+                <img src="/static/weather-icons/moderate.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">6mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Moderate</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Fri</div>
+                <img src="/static/weather-icons/logo.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">2mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Light</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Sat</div>
+                <img src="/static/weather-icons/no-rain.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">0mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>No Rain</span>
+                </div>
+            </div>
+            <div class="panel-small">
+                <div class="day-small">Sun</div>
+                <img src="/static/weather-icons/torrential.svg" alt="" class="weather-status-icon-small">
+                <div class="rainfall-amt">35mm</div>
+                <div class="rainfall-type-small">
+                    <i data-feather="cloud"></i>
+                    <span>Torrential</span>
+                </div>
+            </div>
+          </div>
 
+        <div class="charts-grid">
+          <div class="chart-container">
+            <h3 class="chart-title">Weekly Rainfall Distribution</h3>
+            <div class="chart-wrapper">
+              <canvas id="rainfallChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <h3 class="chart-title">Weather Conditions Distribution</h3>
+            <div class="chart-wrapper">
+              <canvas id="conditionsChart"></canvas>
+            </div>
+          </div>
+        </div>
+    </div>
+
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+      feather.replace();
+  </script>
   <script src="report.js"></script>
   <script src="/static/javascript/gradient.js"></script>
-    <script>
-        window.gradient = new Gradient();
-        window.gradient.initGradient("#gradient-canvas");
-    </script>
+  <script>
+      window.gradient = new Gradient();
+      window.gradient.initGradient("#gradient-canvas");
+  </script>
+   <script>
+    // Chart configuration with common options
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#D9D9D9',
+            font: {
+              family: 'Inter',
+              size: 12
+            }
+          }
+        }
+      },
+      animation: {
+        duration: 2000,
+        easing: 'easeInOutQuart'
+      }
+    };
+
+    // 1. Rainfall Chart
+    const rainfallCtx = document.getElementById('rainfallChart').getContext('2d');
+    const rainfallChart = new Chart(rainfallCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Rainfall (mm)',
+          data: [33, 25, 9, 6, 2, 0, 35],
+          backgroundColor: [
+            'rgba(78, 139, 181, 0.8)',
+            'rgba(42, 82, 152, 0.8)',
+            'rgba(30, 60, 114, 0.8)',
+            'rgba(78, 139, 181, 0.6)',
+            'rgba(155, 188, 217, 0.6)',
+            'rgba(155, 188, 217, 0.4)',
+            'rgba(30, 60, 114, 0.9)'
+          ],
+          borderColor: [
+            'rgba(78, 139, 181, 1)',
+            'rgba(42, 82, 152, 1)',
+            'rgba(30, 60, 114, 1)',
+            'rgba(78, 139, 181, 1)',
+            'rgba(155, 188, 217, 1)',
+            'rgba(155, 188, 217, 1)',
+            'rgba(30, 60, 114, 1)'
+          ],
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#D9D9D9',
+              font: {
+                family: 'Inter'
+              },
+              callback: function(value) {
+                return value + 'mm';
+              }
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#D9D9D9',
+              font: {
+                family: 'Inter',
+                size: 11
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // 2. Weather Conditions Pie Chart
+    const conditionsCtx = document.getElementById('conditionsChart').getContext('2d');
+    const conditionsChart = new Chart(conditionsCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Heavy Rain', 'Torrential', 'Moderate Rain', 'Light Rain', 'Clear'],
+        datasets: [{
+          data: [2, 2, 1, 1, 1],
+          backgroundColor: [
+            'rgba(30, 60, 114, 0.8)',
+            'rgba(42, 82, 152, 0.8)',
+            'rgba(78, 139, 181, 0.8)',
+            'rgba(155, 188, 217, 0.8)',
+            'rgba(255, 206, 84, 0.8)'
+          ],
+          borderColor: [
+            'rgba(30, 60, 114, 1)',
+            'rgba(42, 82, 152, 1)',
+            'rgba(78, 139, 181, 1)',
+            'rgba(155, 188, 217, 1)',
+            'rgba(255, 206, 84, 1)'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: '#D9D9D9',
+              font: {
+                family: 'Inter',
+                size: 11
+              },
+              usePointStyle: true,
+              padding: 15
+            }
+          }
+        },
+        animation: {
+          duration: 2000,
+          easing: 'easeInOutQuart'
+        }
+      }
+    });
+
+    // Add hover effects to charts
+    document.querySelectorAll('.chart-container').forEach(container => {
+      container.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+      });
+      
+      container.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+
+    // Add hover effects to panels
+    document.querySelectorAll('.panel-big, .panel-small').forEach(panel => {
+      panel.addEventListener('mouseenter', function() {
+        this.style.transform = this.classList.contains('panel-big') ? 
+          'translateY(-10px) scale(1.02)' : 'translateY(-8px) scale(1.05)';
+      });
+      
+      panel.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+
+    // Update time every second
+    function updateTime() {
+      const now = new Date();
+      const timeElement = document.querySelector('.time');
+      if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        });
+      }
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
 </body>
 </html>
