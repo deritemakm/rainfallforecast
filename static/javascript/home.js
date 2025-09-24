@@ -132,10 +132,16 @@ class WeatherMap {
         // Navigation effects
         document.querySelectorAll('.navbar-link').forEach(link => {
             link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                // prevent immediate navigation so animation can play
                 e.preventDefault();
                 link.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     link.style.transform = 'scale(1)';
+                    // navigate after animation completes
+                    if (href) {
+                        window.location.href = href;
+                    }
                 }, 150);
             });
         });
