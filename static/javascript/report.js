@@ -1,87 +1,222 @@
+// Pampanga municipalities with coordinates
+const pampangaMunicipalities = {
+  "Angeles": [15.14336011, 120.59051810],
+  "Apalit": [14.94997653, 120.75675619],
+  "Arayat": [15.16593002, 120.78159403],
+  "Bacolor": [15.03378028, 120.62071385],
+  "Candaba": [15.10580611, 120.87269784],
+  "Floridablanca": [14.93617972, 120.48914087],
+  "Guagua": [14.9661957, 120.63310490],
+  "Lubao": [14.90217987, 120.55094493],
+  "Mabalacat": [15.22089063, 120.57105409],
+  "Macabebe": [14.91324103, 120.67347402],
+  "Magalang": [15.2478282, 120.68086630],
+  "Masantol": [14.85194769, 120.67746495],
+  "Mexico": [15.06633515, 120.71217193],
+  "Minalin": [14.95365406, 120.70039268],
+  "Porac": [15.1241602, 120.45899588],
+  "San Fernando": [15.05961285, 120.65646538],
+  "San Luis": [15.01880145, 120.81164009],
+  "San Simon": [14.9940879, 120.77563412],
+  "Santa Ana": [15.10942466, 120.77008266],
+  "Santa Rita": [15.00866765, 120.60767406],
+  "Santo Tomas": [15.00884912, 120.71039539],
+  "Sasmuan": [14.88693929, 120.61290981]
+};
 
-        // Add hover effects to weather cells
-        document.querySelectorAll('.weather-cell').forEach(cell => {
-            cell.addEventListener('mouseenter', function() {
-                this.style.transform = 'scale(1.05)';
-            });
-            
-            cell.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1)';
-            });
-        });
+// Rain classification
+function classifyRain(mm) {
+  if (mm === 0) return "No Rain";
+  if (mm <= 2) return "Light";
+  if (mm <= 10) return "Moderate";
+  if (mm <= 20) return "Heavy";
+  return "Torrential";
+}
 
-        // Add click functionality to sidebar icons
-        document.querySelectorAll('.nav-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                this.style.transform = 'scale(0.9)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
-            });
-        });
-
-        // Pampanga municipalities with coordinates (same order as rows)
-        const pampangaMunicipalities = [
-            { name: "ANGELES", coords: [15.14336011, 120.59051810] },
-            { name: "APALIT", coords: [14.94997653, 120.75675619] },
-            { name: "ARAYAT", coords: [15.16593002, 120.78159403] },
-            { name: "BACOLOR", coords: [15.03378028, 120.62071385] },
-            { name: "CANDABA", coords: [15.10580611, 120.87269784] },
-            { name: "FLORID...", coords: [14.93617972, 120.48914087] },
-            { name: "GUAGUA", coords: [14.9661957, 120.63310490] },
-            { name: "LUBAO", coords: [14.90217987, 120.55094493] },
-            { name: "MABAL", coords: [15.22089063, 120.57105409] },
-            { name: "MACABEBE", coords: [14.91324103, 120.67347402] },
-            { name: "MAGALANG", coords: [15.2478282, 120.68086630] },
-            { name: "MASANTOL", coords: [14.85194769, 120.67746495] },
-            { name: "MEXICO", coords: [15.06633515, 120.71217193] },
-            { name: "MINALIN", coords: [14.95365406, 120.70039268] },
-            { name: "PORAC", coords: [15.1241602, 120.45899588] },
-            { name: "SAN FERNANDO", coords: [15.05961285, 120.65646538] },
-            { name: "SAN LUIS", coords: [15.01880145, 120.81164009] },
-            { name: "SAN SIMON", coords: [14.9940879, 120.77563412] },
-            { name: "SANTA ANA", coords: [15.10942466, 120.77008266] },
-            { name: "SANTA RITA", coords: [15.00866765, 120.60767406] },
-            { name: "SANTO TOMAS", coords: [15.00884912, 120.71039539] },
-            { name: "SASMUAN", coords: [14.88693929, 120.61290981] }
-        ];
-
-        // Helper to get the correct row for a municipality
-        function getRowByName(name) {
-            const rows = document.querySelectorAll('.municipality-row');
-            for (let row of rows) {
-                const label = row.querySelector('.municipality-name');
-                if (label && label.textContent.replace(/\s+/g, '').toUpperCase().startsWith(name.replace(/\s+/g, '').toUpperCase())) {
-                    return row;
-                }
-            }
-            return null;
+// Chart initialization
+function initCharts() {
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: '#D9D9D9',
+          font: { family: 'Inter', size: 12 }
         }
+      }
+    },
+    animation: { duration: 2000, easing: 'easeInOutQuart' }
+  };
 
-        // Fetch rainfall data for all municipalities and update the table
-        async function fetchAndUpdateRainfall() {
-            for (let muni of pampangaMunicipalities) {
-                let lat = muni.coords[0];
-                let lon = muni.coords[1];
-                let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&timezone=auto`;
-                try {
-                    let res = await fetch(url);
-                    let data = await res.json();
-                    if (data.daily && data.daily.precipitation_sum) {
-                        let row = getRowByName(muni.name);
-                        if (row) {
-                            let cells = row.querySelectorAll('.weather-cell .weather-text');
-                            for (let i = 0; i < Math.min(7, data.daily.precipitation_sum.length); i++) {
-                                cells[i].innerHTML = `${Math.round(data.daily.precipitation_sum[i])}mm<br>rainfall`;
-                            }
-                        }
-                    }
-                } catch (e) {
-                    // Optionally handle error
-                }
-            }
+  // Rainfall Chart
+  const rainfallCtx = document.getElementById('rainfallChart').getContext('2d');
+  window.rainfallChart = new Chart(rainfallCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Rainfall (mm)',
+        data: [0, 0, 0, 0, 0, 0, 0],
+        backgroundColor: [
+          'rgba(78, 139, 181, 0.8)',
+          'rgba(42, 82, 152, 0.8)',
+          'rgba(30, 60, 114, 0.8)',
+          'rgba(78, 139, 181, 0.6)',
+          'rgba(155, 188, 217, 0.6)',
+          'rgba(155, 188, 217, 0.4)',
+          'rgba(30, 60, 114, 0.9)'
+        ],
+        borderColor: [
+          'rgba(78, 139, 181, 1)',
+          'rgba(42, 82, 152, 1)',
+          'rgba(30, 60, 114, 1)',
+          'rgba(78, 139, 181, 1)',
+          'rgba(155, 188, 217, 1)',
+          'rgba(155, 188, 217, 1)',
+          'rgba(30, 60, 114, 1)'
+        ],
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          ticks: {
+            color: '#D9D9D9',
+            font: { family: 'Inter' },
+            callback: value => value + 'mm'
+          }
+        },
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          ticks: { color: '#D9D9D9', font: { family: 'Inter', size: 11 } }
         }
+      }
+    }
+  });
 
-        // Run on page load
-        fetchAndUpdateRainfall();
-  
+  // Weather Conditions Chart
+  const conditionsCtx = document.getElementById('conditionsChart').getContext('2d');
+  window.conditionsChart = new Chart(conditionsCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['No Rain', 'Light', 'Moderate', 'Heavy', 'Torrential'],
+      datasets: [{
+        data: [0, 0, 0, 0, 0],
+        backgroundColor: [
+          'rgba(155, 188, 217, 0.8)',
+          'rgba(255, 206, 84, 0.8)',
+          'rgba(78, 139, 181, 0.8)',
+          'rgba(42, 82, 152, 0.8)',
+          'rgba(30, 60, 114, 0.8)'
+        ],
+        borderColor: [
+          'rgba(155, 188, 217, 1)',
+          'rgba(255, 206, 84, 1)',
+          'rgba(78, 139, 181, 1)',
+          'rgba(42, 82, 152, 1)',
+          'rgba(30, 60, 114, 1)'
+        ],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: '#D9D9D9',
+            font: { family: 'Inter', size: 11 },
+            usePointStyle: true,
+            padding: 15
+          }
+        }
+      },
+      animation: { duration: 2000, easing: 'easeInOutQuart' }
+    }
+  });
+}
+
+// Update panels, charts, header
+async function updateWeather(muniName) {
+  const header = document.querySelector(".weather-panel-header h1");
+  if (header) header.textContent = muniName;
+
+  const [lat, lon] = pampangaMunicipalities[muniName] || pampangaMunicipalities["Angeles"];
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&timezone=auto`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data.daily) return;
+
+    const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    const bigPanel = document.querySelector(".panel-big");
+    const smallPanels = document.querySelectorAll(".panel-small");
+
+    // Main panel (today)
+    const today = new Date().getDay();
+    const todayIdx = (today + 6) % 7;
+    const todayRain = Math.round(data.daily.precipitation_sum[todayIdx]);
+    bigPanel.querySelector(".rainfall-amt").textContent = `${todayRain}mm Rainfall`;
+    bigPanel.querySelector(".rainfall-type span").textContent = classifyRain(todayRain);
+
+    // Small panels
+    smallPanels.forEach((panel, i) => {
+      const mm = Math.round(data.daily.precipitation_sum[i]);
+      panel.querySelector(".day-small").textContent = days[i];
+      panel.querySelector(".rainfall-amt").textContent = `${mm}mm`;
+      panel.querySelector(".rainfall-type-small span").textContent = classifyRain(mm);
+    });
+
+    // Update charts
+    if (window.rainfallChart) {
+      window.rainfallChart.data.datasets[0].data = data.daily.precipitation_sum.slice(0,7);
+      window.rainfallChart.update();
+    }
+    if (window.conditionsChart) {
+      const counts = { "No Rain": 0, "Light": 0, "Moderate": 0, "Heavy": 0, "Torrential": 0 };
+      data.daily.precipitation_sum.slice(0,7).forEach(mm => {
+        counts[classifyRain(Math.round(mm))]++;
+      });
+      window.conditionsChart.data.datasets[0].data = Object.values(counts);
+      window.conditionsChart.update();
+    }
+
+  } catch (e) {
+    console.error("Weather fetch failed", e);
+  }
+}
+
+// Hook dropdown
+document.querySelectorAll(".options input").forEach(radio => {
+  radio.addEventListener("change", () => {
+    const label = document.querySelector(`label[for=${radio.id}]`);
+    if (label) updateWeather(label.getAttribute("data-txt"));
+  });
+});
+
+// Initialize charts & default weather
+initCharts();
+updateWeather("Angeles");
+
+// Update time every second
+function updateTime() {
+  const now = new Date();
+  const timeElement = document.querySelector('.time');
+  if (timeElement) {
+    timeElement.textContent = now.toLocaleTimeString('en-US', { 
+      hour: 'numeric', minute: '2-digit', hour12: true 
+    });
+  }
+}
+updateTime();
+setInterval(updateTime, 1000);
