@@ -110,15 +110,15 @@ function initCharts() {
       datasets: [{
         data: [0, 0, 0, 0, 0],
         backgroundColor: [
-          'rgba(155, 188, 217, 0.8)',
           'rgba(255, 206, 84, 0.8)',
+          'rgba(155, 188, 217, 0.8)',
           'rgba(78, 139, 181, 0.8)',
           'rgba(42, 82, 152, 0.8)',
           'rgba(30, 60, 114, 0.8)'
         ],
         borderColor: [
-          'rgba(155, 188, 217, 1)',
           'rgba(255, 206, 84, 1)',
+          'rgba(155, 188, 217, 1)',
           'rgba(78, 139, 181, 1)',
           'rgba(42, 82, 152, 1)',
           'rgba(30, 60, 114, 1)'
@@ -158,23 +158,28 @@ async function updateWeather(muniName) {
     const data = await res.json();
     if (!data.daily) return;
 
-    const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const bigPanel = document.querySelector(".panel-big");
     const smallPanels = document.querySelectorAll(".panel-small");
 
-    // Main panel (today)
-    const today = new Date().getDay();
-    const todayIdx = (today + 6) % 7;
-    const todayRain = Math.round(data.daily.precipitation_sum[todayIdx]);
+    const today = new Date().getDay(); // 0 = Sun
+    const todayRain = Math.round(data.daily.precipitation_sum[0]); // API day[0] is today
+
+    // Update big panel (today)
+    bigPanel.querySelector(".day").textContent = days[today];
     bigPanel.querySelector(".rainfall-amt").textContent = `${todayRain}mm Rainfall`;
     bigPanel.querySelector(".rainfall-type span").textContent = classifyRain(todayRain);
 
-    // Small panels
+    // Update the next 6 days for small panels
     smallPanels.forEach((panel, i) => {
-      const mm = Math.round(data.daily.precipitation_sum[i]);
-      panel.querySelector(".day-small").textContent = days[i];
-      panel.querySelector(".rainfall-amt").textContent = `${mm}mm`;
-      panel.querySelector(".rainfall-type-small span").textContent = classifyRain(mm);
+    const idx = i + 1; // next day index in API
+    if (idx < data.daily.precipitation_sum.length) {
+        const mm = Math.round(data.daily.precipitation_sum[idx]);
+        const dayIdx = (today + idx) % 7; // roll over at Sat→Sun
+        panel.querySelector(".day-small").textContent = days[dayIdx];
+        panel.querySelector(".rainfall-amt").textContent = `${mm}mm`;
+        panel.querySelector(".rainfall-type-small span").textContent = classifyRain(mm);
+    }
     });
 
     // Update charts
