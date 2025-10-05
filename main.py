@@ -102,11 +102,8 @@ async def get_all_weather_data():
     
     return cached_data
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-
-# Mount the StaticFiles using the absolute path
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# Serve everything under /static/ from the static folder
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
