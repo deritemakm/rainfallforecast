@@ -1,5 +1,4 @@
 // Weather Map Application - Optimized Version
-
 class WeatherMap {
     constructor() {
         this.map = null;
@@ -8,8 +7,7 @@ class WeatherMap {
         this.selectedMunicipality = null;
         this.updateInterval = null;
         
-        // Constants
-        this.BATCH_SIZE = 5;
+        this.pampangaMunicipalities = []
         this.UPDATE_INTERVAL = 300000; // 5 minutes
         this.BACKEND_WEATHER_API_URL = 'http://127.0.0.1:8000/api/weather-data';
         
@@ -27,13 +25,11 @@ class WeatherMap {
         this.setupProvinceBoundary();
         this.showLoadingState();
 
-        this.pampangaMunicipalities = this.getStaticMunicipalityData();
         this.updateMarkers();
-        this.updateInitialWeatherCard();
         
         // Uncomment below to use API
-        // await this.fetchAndUpdateWeatherData();
-        // this.startAutoUpdate();
+        await this.fetchAndUpdateWeatherData();
+        this.startAutoUpdate();
     }
     
     // Cache frequently used DOM elements
@@ -154,7 +150,7 @@ class WeatherMap {
         if (selectedOptionId === 'all') {
             // Show all municipalities view
             this.map.setView([15.0794, 120.6200], 11);
-            municipality = this.pampangaMunicipalities.find(m => m.name === "Porac") || this.pampangaMunicipalities[0];
+            municipality = this.pampangaMunicipalities.find(m => m.name === "San Fernando") || this.pampangaMunicipalities[0];
         } else {
             // Find specific municipality
             const optionIndex = parseInt(selectedOptionId.replace('option-', ''));
@@ -245,7 +241,7 @@ class WeatherMap {
         return `
             <div class="weather-popup" style="text-align: center; padding: 10px;">
                 <h3 style="margin: 0 0 10px 0; color: #333;">${municipality.name}</h3>
-                <div style="font-size: 18px; font-weight: bold; color: #005280;">${municipality.rainfall}mm Rainfall</div>
+                <div style="font-size: 18px; font-weight: bold; color: #005280;">${Math.round(municipality.rainfall)}mm Rainfall</div>
                 <div style="color: #666; margin: 5px 0;">${municipality.condition}</div>
                 <img src="${this.getIconPath(municipality.type)}" style="width: 32px; height: 32px; margin-top: 5px;" alt="${municipality.type}">
             </div>
@@ -265,7 +261,7 @@ class WeatherMap {
         // Update main weather panel
         this.updateDOMElement(this.domElements.day, today);
         this.updateDOMElement(this.domElements.time, time);
-        this.updateDOMElement(this.domElements.rainfallAmount, `${municipality.rainfall}mm Rainfall`);
+        this.updateDOMElement(this.domElements.rainfallAmount, `${Math.round(municipality.rainfall)}mm Rainfall`);
         this.updateDOMElement(this.domElements.rainfallType, municipality.condition);
         this.updateDOMElement(this.domElements.location, `${municipality.name}, Pampanga`);
         this.updateDOMElement(this.domElements.date, date);
@@ -281,27 +277,29 @@ class WeatherMap {
     
     // Update forecast panels (small panels)
     updateForecastPanels(municipality) {
-        const forecastData = this.generateForecastData(municipality);
-        // Start from tomorrow
-        const allDays = ['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
+        const fullForecast = municipality.forecast || [];
+    
+        // Use the 14-day forecast and show the first 7 days (index 0 to 6)
+        const displayForecast = fullForecast.slice(1, 7); // Days 2 to 7 (6 days for the small panels)
+       
+        const allDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
         const todayIndex = new Date().getDay(); // 0 = Sunday ... 6 = Saturday
-        const rotatedDays = [];
-
-        for (let i = 1; i <= 6; i++) {
-            rotatedDays.push(allDays[(todayIndex + i) % 7]);
-        }
-
+    
         this.domElements.smallPanels?.forEach((panel, index) => {
-            if (index < forecastData.length) {
-                const forecast = forecastData[index];
+            if (index < displayForecast.length) {
+                const forecast = displayForecast[index];
+    
+                // Calculate day name starting from tomorrow for the first panel
+                const dayOfWeekIndex = (todayIndex + index + 1) % 7;
+                const dayName = allDays[dayOfWeekIndex];
                 
                 const dayElement = panel.querySelector('.day-small');
                 const iconElement = panel.querySelector('.weather-status-icon-small');
                 const rainfallElement = panel.querySelector('.rainfall-amt');
                 const typeElement = panel.querySelector('.rainfall-type-small span');
                 
-                this.updateDOMElement(dayElement, rotatedDays[index]);
-                this.updateDOMElement(rainfallElement, `${forecast.rainfall}mm`);
+                this.updateDOMElement(dayElement, dayName);
+                this.updateDOMElement(rainfallElement, `${Math.round(forecast.rain)}mm`); 
                 this.updateDOMElement(typeElement, forecast.condition);
                 
                 if (iconElement) {
@@ -311,39 +309,6 @@ class WeatherMap {
         });
     }
     
-    // Generate sample forecast data
-    generateForecastData(municipality) {
-        const baseRainfall = municipality.rainfall;
-        const forecasts = [];
-        
-        for (let i = 0; i < 6; i++) {
-            const variation = (Math.random() - 0.5) * 20; // ±10mm variation
-            const rainfall = Math.max(0, Math.round(baseRainfall + variation));
-            
-            let type, condition;
-            if (rainfall >= 30) {
-                type = 'extreme';
-                condition = 'Torrential';
-            } else if (rainfall >= 20) {
-                type = 'heavy';
-                condition = 'Heavy';
-            } else if (rainfall >= 10) {
-                type = 'moderate';
-                condition = 'Moderate';
-            } else if (rainfall > 0) {
-                type = 'light';
-                condition = 'Light';
-            } else {
-                type = 'none';
-                condition = 'No Rain';
-            }
-            
-            forecasts.push({ rainfall, type, condition });
-        }
-        
-        return forecasts;
-    }
-    
     // Update DOM element safely
     updateDOMElement(element, content) {
         if (element) element.textContent = content;
@@ -351,8 +316,8 @@ class WeatherMap {
     
     // Update initial weather card
     updateInitialWeatherCard() {
-        const porac = this.pampangaMunicipalities.find(m => m.name === "Porac");
-        this.updateWeatherCard(porac || this.pampangaMunicipalities[0]);
+        const sanFernando = this.pampangaMunicipalities.find(m => m.name === "San Fernando");
+        this.updateWeatherCard(sanFernando || this.pampangaMunicipalities[0]);
     }
     
     // Show loading state
@@ -360,34 +325,6 @@ class WeatherMap {
         this.updateDOMElement(this.domElements.rainfallAmount, 'Loading...');
         this.updateDOMElement(this.domElements.rainfallType, '');
         this.updateDOMElement(this.domElements.location, '');
-    }
-    
-    // Get static municipality data (replace with API call when ready)
-    getStaticMunicipalityData() {
-        return [
-            { name: "Angeles City", coords: [15.14336011, 120.59051810], rainfall: 45, condition: "Heavy Rain", type: "extreme" },
-            { name: "Apalit", coords: [14.94997653, 120.75675619], rainfall: 22, condition: "Moderate Rain", type: "moderate" },
-            { name: "Arayat", coords: [15.16593002, 120.78159403], rainfall: 28, condition: "Moderate Rain", type: "moderate" },
-            { name: "Bacolor", coords: [15.03378028, 120.62071385], rainfall: 38, condition: "Heavy Rain", type: "heavy" },
-            { name: "Candaba", coords: [15.10580611, 120.87269784], rainfall: 18, condition: "Light Rain", type: "light" },
-            { name: "Floridablanca", coords: [14.93617972, 120.48914087], rainfall: 41, condition: "Heavy Rain", type: "heavy" },
-            { name: "Guagua", coords: [14.9661957, 120.63310490], rainfall: 35, condition: "Heavy Rain", type: "heavy" },
-            { name: "Lubao", coords: [14.90217987, 120.55094493], rainfall: 12, condition: "Light Rain", type: "light" },
-            { name: "Mabalacat", coords: [15.22089063, 120.57105409], rainfall: 33, condition: "Heavy Rain", type: "heavy" },
-            { name: "Macabebe", coords: [14.91324103, 120.67347402], rainfall: 19, condition: "Light Rain", type: "light" },
-            { name: "Magalang", coords: [15.2478282, 120.68086630], rainfall: 42, condition: "Heavy Rain", type: "heavy" },
-            { name: "Masantol", coords: [14.85194769, 120.67746495], rainfall: 15, condition: "Light Rain", type: "light" },
-            { name: "Mexico", coords: [15.06633515, 120.71217193], rainfall: 25, condition: "Moderate Rain", type: "moderate" },
-            { name: "Minalin", coords: [14.95365406, 120.70039268], rainfall: 21, condition: "Moderate Rain", type: "moderate" },
-            { name: "Porac", coords: [15.1241602, 120.45899588], rainfall: 33, condition: "Heavy Rain", type: "heavy" },
-            { name: "San Fernando", coords: [15.05961285, 120.65646538], rainfall: 25, condition: "Intense", type: "heavy" },
-            { name: "San Luis", coords: [15.01880145, 120.81164009], rainfall: 17, condition: "Light Rain", type: "light" },
-            { name: "San Simon", coords: [14.9940879, 120.77563412], rainfall: 23, condition: "Moderate Rain", type: "moderate" },
-            { name: "Santa Ana", coords: [15.10942466, 120.77008266], rainfall: 29, condition: "Moderate Rain", type: "moderate" },
-            { name: "Santa Rita", coords: [15.00866765, 120.60767406], rainfall: 31, condition: "Heavy Rain", type: "heavy" },
-            { name: "Santo Tomas", coords: [15.00884912, 120.71039539], rainfall: 26, condition: "Moderate Rain", type: "moderate" },
-            { name: "Sasmuan", coords: [14.88693929, 120.61290981], rainfall: 14, condition: "Light Rain", type: "light" }
-        ];
     }
     
     // Fetch weather data from API (currently disabled, using static data)
@@ -403,11 +340,11 @@ class WeatherMap {
             this.updateInitialWeatherCard();
             
         } catch (error) {
-            console.error('Failed to fetch weather data from backend:', error);
-            // Fallback to static data
-            this.pampangaMunicipalities = this.getStaticMunicipalityData();
+            console.error('Failed to fetch weather data from backend. Falling back to empty state.', error);
+
+            this.pampangaMunicipalities = []; // Set to empty array on failure
             this.updateMarkers();
-            this.updateInitialWeatherCard();
+            this.showLoadingState('Forecast Unavailable');
         }
     }
     

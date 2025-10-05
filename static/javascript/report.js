@@ -24,6 +24,9 @@ const pampangaMunicipalities = {
   "Sasmuan": [14.88693929, 120.61290981]
 };
 
+// Global variable to store all fetched data
+let allForecastData = [];
+
 // Rain classification
 function classifyRain(mm) {
   if (mm === 0) return "No Rain";
@@ -54,7 +57,7 @@ function initCharts() {
   window.rainfallChart = new Chart(rainfallCtx, {
     type: 'bar',
     data: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
       datasets: [{
         label: 'Rainfall (mm)',
         data: [0, 0, 0, 0, 0, 0, 0],
@@ -145,59 +148,95 @@ function initCharts() {
   });
 }
 
-// Update panels, charts, header
+async function fetchData() {
+  try {
+      const res = await fetch('/api/weather-data');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      allForecastData = await res.json();
+      console.log("Forecast data loaded:", allForecastData.length, "municipalities.");
+
+      // After loading, ensure the initial display is correct
+      const initialMuni = document.querySelector(".options input:checked") 
+                         ? document.querySelector(".options input:checked").nextElementSibling.getAttribute("data-txt") 
+                         : "Angeles";
+      
+      const initialRadio = document.querySelector(`label[data-txt="${initialMuni}"]`).previousElementSibling;
+
+      if (initialRadio) {
+          initialRadio.checked = true;
+          updateWeather(initialMuni);
+      }
+  } catch (e) {
+      console.error("Failed to fetch forecast data from backend:", e);
+  }
+}
+
 async function updateWeather(muniName) {
+  // Get forecast data for the selected municipality
+  const muniData = allForecastData.find(m => m.name === muniName);
+
+  if (!muniData || !muniData.forecast) {
+    console.warn(`No forecast data found for ${muniName}`);
+    return;
+  }
+
+  // Prepare data for charts and panels
+  const forecastList = muniData.forecast;
+  const rainfallData = forecastList.slice(0, 7).map(f => Math.round(f.rain)); // Extract first 7 rain values
+  
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const todayIndex = new Date().getDay(); // 0 = Sun
+  
+  // Create dynamic labels 
+  const chartLabels = forecastList.slice(0, 7).map((_, i) => {
+    const dayIndex = (todayIndex + i) % 7;
+    return i === 0 ? "Today" : days[dayIndex];
+  });
+
+
+  // 3. Update main panel (today)
+  const bigPanel = document.querySelector(".panel-big");
+  const todayData = forecastList[0];
+
   const header = document.querySelector(".weather-panel-header h1");
   if (header) header.textContent = muniName;
+  
+  if (bigPanel) {
+    bigPanel.querySelector(".day").textContent = "Today";
+    bigPanel.querySelector(".rainfall-amt").textContent = `${Math.round(todayData.rain)}mm Rainfall`;
+    bigPanel.querySelector(".rainfall-type span").textContent = todayData.type;
+  }
 
-  const [lat, lon] = pampangaMunicipalities[muniName] || pampangaMunicipalities["Angeles"];
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&timezone=auto`;
+  // Update the next 6 days for small panels
+  const smallPanels = document.querySelectorAll(".panel-small");
+  
+  smallPanels.forEach((panel, i) => {
+    const idx = i + 1; // next day index
+    const dayData = forecastList[idx];
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!data.daily) return;
-
-    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    const bigPanel = document.querySelector(".panel-big");
-    const smallPanels = document.querySelectorAll(".panel-small");
-
-    const today = new Date().getDay(); // 0 = Sun
-    const todayRain = Math.round(data.daily.precipitation_sum[0]); // API day[0] is today
-
-    // Update big panel (today)
-    bigPanel.querySelector(".day").textContent = days[today];
-    bigPanel.querySelector(".rainfall-amt").textContent = `${todayRain}mm Rainfall`;
-    bigPanel.querySelector(".rainfall-type span").textContent = classifyRain(todayRain);
-
-    // Update the next 6 days for small panels
-    smallPanels.forEach((panel, i) => {
-    const idx = i + 1; // next day index in API
-    if (idx < data.daily.precipitation_sum.length) {
-        const mm = Math.round(data.daily.precipitation_sum[idx]);
-        const dayIdx = (today + idx) % 7; // roll over at Sat→Sun
-        panel.querySelector(".day-small").textContent = days[dayIdx];
-        panel.querySelector(".rainfall-amt").textContent = `${mm}mm`;
-        panel.querySelector(".rainfall-type-small span").textContent = classifyRain(mm);
+    if (dayData) {
+      const dayIdx = (todayIndex + idx) % 7;
+      panel.querySelector(".day-small").textContent = days[dayIdx];
+      panel.querySelector(".rainfall-amt").textContent = `${Math.round(dayData.rain)}mm`;
+      panel.querySelector(".rainfall-type-small span").textContent = dayData.type;
+      
     }
+  });
+
+  // Update charts
+  if (window.rainfallChart) {
+    window.rainfallChart.data.labels = chartLabels; // Use dynamic labels
+    window.rainfallChart.data.datasets[0].data = rainfallData;
+    window.rainfallChart.update();
+  }
+  
+  if (window.conditionsChart) {
+    const counts = { "No Rain": 0, "Light": 0, "Moderate": 0, "Heavy": 0, "Torrential": 0 };
+    rainfallData.forEach(mm => {
+      counts[classifyRain(mm)]++;
     });
-
-    // Update charts
-    if (window.rainfallChart) {
-      window.rainfallChart.data.datasets[0].data = data.daily.precipitation_sum.slice(0,7);
-      window.rainfallChart.update();
-    }
-    if (window.conditionsChart) {
-      const counts = { "No Rain": 0, "Light": 0, "Moderate": 0, "Heavy": 0, "Torrential": 0 };
-      data.daily.precipitation_sum.slice(0,7).forEach(mm => {
-        counts[classifyRain(Math.round(mm))]++;
-      });
-      window.conditionsChart.data.datasets[0].data = Object.values(counts);
-      window.conditionsChart.update();
-    }
-
-  } catch (e) {
-    console.error("Weather fetch failed", e);
+    window.conditionsChart.data.datasets[0].data = Object.values(counts);
+    window.conditionsChart.update();
   }
 }
 
@@ -211,7 +250,7 @@ document.querySelectorAll(".options input").forEach(radio => {
 
 // Initialize charts & default weather
 initCharts();
-updateWeather("Angeles");
+fetchData();
 
 // Update time every second
 function updateTime() {
