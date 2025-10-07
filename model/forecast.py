@@ -130,15 +130,17 @@ def add_seasonality_features(data):
     return data
     
 def get_rainfall_classification(rainfall: float) -> dict:
-    if rainfall >= 40: 
-        return {"type": "extreme", "condition": "Torrential Rain"}
-    if rainfall >= 30: 
-        return {"type": "heavy", "condition": "Heavy Rain"}
-    if rainfall >= 20: 
-        return {"type": "moderate", "condition": "Moderate Rain"}
-    if rainfall >= 10:
+    if rainfall == 0: 
+        return {"type": "none", "condition": "No Rain"}
+    if rainfall <= 5: 
         return {"type": "light", "condition": "Light Rain"}
-    return {"type": "none", "condition": "No Significant Rain"}
+    if rainfall <= 25: 
+        return {"type": "moderate", "condition": "Moderate Rain"}
+    if rainfall <= 50:
+        return {"type": "heavy", "condition": "Heavy Rain"}
+    if rainfall <= 100:
+        return {"type": "intense", "condition": "Intense Rain"}
+    return {"type": "torrential", "condition": "Torrential Rain"}
 
 class ForecastService:
     def __init__(self):
@@ -168,11 +170,11 @@ class ForecastService:
             shared_scaler_path = os.path.join(full_model_dir, "model_scaler.pkl")
             
             shared_imputer = joblib.load(shared_imputer_path)
-            shared_scaler = joblib.load(shared_scaler_path)
+            shared_scaler = joblib.load(shared_scaler_path)  
             
             print("  ✅ Loaded SHARED Imputer and Scaler.")
         except FileNotFoundError as e:
-            print(f"  ❌ FATAL: Shared assets not found. Check if 'model_imputer.pkl' and 'model_scaler.pkl' are in {full_model_dir}")
+            print(f"  FATAL: Shared assets not found. Check if 'model_imputer.pkl' and 'model_scaler.pkl' are in {full_model_dir}")
             raise e
 
 
@@ -208,17 +210,17 @@ class ForecastService:
                 print(f"  ✅ Loaded Model for Post ID {post_id}.")
                 
             except Exception as e:
-                print(f"  ❌ Failed to load model for Post ID {post_id}: {e}")
+                print(f"  Failed to load model for Post ID {post_id}: {e}")
 
         if not self.model_registry:
-             print("⚠️ No models were successfully loaded.")
+             print("No models were successfully loaded.")
 
     # Fetch yesterday's data to forecast 7-day ahead (today + 6 days)
     def fetch_yesterday_weather(self, lat: float, lon: float) -> Dict[str, Any]:
         end_date = datetime.date.today() - datetime.timedelta(days=1)
         start_date = end_date # Fetching just one day
 
-        url = "https://archive-api.open-meteo.com/v1/archive"
+        url = "https://archive-api.open-meteo.com/v1/archive" 
         params = {
             "latitude": lat,
             "longitude": lon,
@@ -253,7 +255,7 @@ class ForecastService:
                 }
             }
         except Exception as e:
-            print(f"  ❌ Error fetching weather data for ({lat}, {lon}): {e}")
+            print(f"  Error fetching weather data for ({lat}, {lon}): {e}")
             raise
 
     # Preprocessing    
@@ -332,11 +334,6 @@ class ForecastService:
         # Clamping negative values
         final_forecast_rain = np.maximum(0, final_forecast_rain_raw) 
         
-        # The input data is for Yesterday (D-1). The model is run with D-1's features 
-        # to predict D, D+1, D+2, ..., D+N-1.
-        # Since we changed the date in _preprocessing_data to today (D), the model
-        # predicts the next N days starting from D.
-        
         # Start date of the forecast is TODAY
         start_date = datetime.date.today()
         num_forecast_days = config.output_size 
@@ -361,7 +358,7 @@ class ForecastService:
 
     #  MAIN FORECAST PROCESSING AND CACHING (TO BE CALLED BY main.py SCRIPT)
     async def run_batch_forecast_and_cache(self, municipalities: List[Dict[str, Any]]):
-        print("\n--- Starting Daily Batch Forecast ---")
+        print("\n=== Starting Daily Batch Forecast ===")
         new_cache = {}
         successful_count = 0
         
@@ -370,7 +367,7 @@ class ForecastService:
             lat, lon = muni['coords'][0], muni['coords'][1]
             
             if post_id not in self.model_registry:
-                print(f"  ⚠️ Skipping {muni['name']}: No model found for Post ID {post_id}.")
+                print(f"  Skipping {muni['name']}: No model found for Post ID {post_id}.")
                 continue
                 
             try:
@@ -403,34 +400,89 @@ class ForecastService:
                 
         self.cache = new_cache
         self.last_update = datetime.datetime.now()
-        print(f"\n✅ Batch Forecast Complete. {successful_count}/{len(municipalities)} municipalities updated.")
+        print(f"\nBatch Forecast Complete. {successful_count}/{len(municipalities)} municipalities updated.")
         return list(self.cache.values())
 
     def get_cached_forecasts(self) -> List[Dict[str, Any]]:
         return list(self.cache.values())
 
+    def generate_forecast_manual_data(self, post_id: int, custom_weather_data: Dict[str, Any]) -> list:
+        if post_id not in self.model_registry:
+            raise ValueError(f"Model for Post ID {post_id} not loaded/found.")
+            
+        assets = self.model_registry[post_id]
+        model, imputer, scaler, config = assets['model'], assets['imputer'], assets['scaler'], assets['config']
+
+        # Use manual input data
+        preprocessed_df = self._preprocessing_data(custom_weather_data, imputer, scaler, config)
+        input_tensor = torch.tensor(preprocessed_df.values, dtype=torch.float32)
+
+        # Run Model
+        with torch.no_grad():
+            normalized_predictions = model(input_tensor)
+        
+        predictions_np = normalized_predictions.numpy()
+        
+        # Denormalize forecasts
+        final_forecast_rain_raw = self._denormalization(predictions_np, scaler).flatten()
+
+        # Clamping negative values
+        final_forecast_rain = np.maximum(0, final_forecast_rain_raw) 
+        
+        # Start date of the forecast is TODAY
+        start_date = datetime.date.today()
+        num_forecast_days = config.output_size 
+
+        forecast_list = []
+        
+        for i in range(num_forecast_days):
+            forecast_date = start_date + datetime.timedelta(days=i)
+            rain_value = float(final_forecast_rain[i])
+            
+            classification = get_rainfall_classification(rain_value)
+            
+            forecast_list.append({
+                "date": forecast_date.isoformat(),
+                "rain": round(rain_value, 2),
+                "condition": classification['condition'],
+                "type": classification['type']
+            })   
+        return forecast_list
+
 
 # TEST FORECASTING
 if __name__ == "__main__":
-    print("Testing ForecastService...")
+    print("MANUAL TESTING")
 
     # Instantiate Service
     service = ForecastService()
     
     # Load all models 
     service.load_all_models() 
+
+    TEST_POST_ID = 2000
+    yesterday_date = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
     
-    # Set sample municipality data (must include 'post_id')
-    test_municipalities = [
-        {"name": "Angeles City", "coords": [15.14336011, 120.59051810], "post_id": 2000},
-        {"name": "Porac", "coords": [15.1241602, 120.45899588], "post_id": 2001},
-        # ... add more test data 
-    ]
-    
-    # Run batch forecast
-    final_data = service.run_batch_forecast_and_cache(test_municipalities)
+    sample_weather_data = {
+        "daily": {
+            "time": [yesterday_date],
+            "temperature_2m_mean": [32.0],
+            "temperature_2m_max": [35.5],
+            "temperature_2m_min": [28.0],
+            "rain_sum": [0.0],                
+            "cloud_cover_mean": [10.0],
+            "relative_humidity_2m_mean": [50.0],
+            "wind_speed_10m_max": [15.0],
+            "wind_direction_10m_dominant": [250.0],
+        }
+    }
+
+    final_data = service.generate_forecast_manual_data(
+            post_id=TEST_POST_ID, 
+            custom_weather_data=sample_weather_data
+        )
     
     # Display the final cached data structure
-    print("\n--- Final Cached Data for Frontend ---")
+    print("\n=== Final Cached Data for Frontend ===")
     print(json.dumps(final_data, indent=2))
     print("\nTest complete.")
