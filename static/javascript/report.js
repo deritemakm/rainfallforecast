@@ -207,12 +207,16 @@ function buildMunicipalitySlider(){
   allForecastData.forEach(m => {
     const total = getSevenDayTotal(m.forecast);
     const type = rainTypeFromTotal(total);
+    // Compute 7-day average (use actual number of days available up to 7)
+    const daysCount = Math.min(7, m.forecast.length);
+    const avg = daysCount ? (total / daysCount) : 0;
     const card = document.createElement('div');
     card.className = 'muni-card';
     card.setAttribute('data-muni', m.name);
       card.innerHTML = `
         <div class="muni-name">${m.name}</div>
         <div class="total-rain">${Math.round(total)}<span class="unit">mm</span></div>
+        <div class="avg-rain" title="7-day average rainfall">${avg.toFixed(1)}<span class="unit"> Avg mm</span></div>
         <div class="rain-type-tag" data-type="${type}">${type.replace(/^(.)/,c=>c.toUpperCase())} Total</div>
       `;
     card.addEventListener('click', ()=>{
