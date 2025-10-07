@@ -26,6 +26,9 @@ const pampangaMunicipalities = {
 
 // Global variable to store all fetched data
 let allForecastData = [];
+let selectedMunicipality = null;
+let sliderIndex = 0; // current first visible card index
+const CARDS_PER_VIEW = 5; // adjustable
 
 // Rain classification
 function classifyRain(mm) {
@@ -153,7 +156,9 @@ async function fetchData() {
       const res = await fetch('/api/weather-data');
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       allForecastData = await res.json();
-      console.log("Forecast data loaded:", allForecastData.length, "municipalities.");
+  console.log("Forecast data loaded:", allForecastData.length, "municipalities.");
+
+  buildMunicipalitySlider();
 
       // After loading, ensure the initial display is correct
       const initialMuni = document.querySelector(".options input:checked") 
@@ -164,12 +169,123 @@ async function fetchData() {
 
       if (initialRadio) {
           initialRadio.checked = true;
-          updateWeather(initialMuni);
+          // Use unified card selection so active styling & charts sync
+          selectMunicipalityCard(initialMuni);
+          // Center/ensure visibility in slider
+          const track = document.getElementById('municipalityTrack');
+          const card = track ? [...track.children].find(c=>c.getAttribute('data-muni')===initialMuni) : null;
+          if(card){
+            const idx = [...track.children].indexOf(card);
+            sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), Math.max(0, track.children.length - CARDS_PER_VIEW));
+            slide(0);
+          }
       }
   } catch (e) {
       console.error("Failed to fetch forecast data from backend:", e);
   }
 }
+
+function getSevenDayTotal(forecastList){
+  return forecastList.slice(0,7).reduce((acc,f)=>acc + (Number(f.rain)||0),0);
+}
+
+function rainTypeFromTotal(total){
+  // reuse classification thresholds but scaled for cumulative 7-day; choose highest day classification instead
+  if(total >= 140) return 'extreme'; // avg 20mm/day
+  if(total >= 100) return 'heavy';
+  if(total >= 60) return 'moderate';
+  if(total >= 10) return 'light';
+  return 'none';
+}
+
+
+function buildMunicipalitySlider(){
+  const track = document.getElementById('municipalityTrack');
+  if(!track) return;
+  track.innerHTML = '';
+  allForecastData.sort((a,b)=>a.name.localeCompare(b.name));
+  allForecastData.forEach(m => {
+    const total = getSevenDayTotal(m.forecast);
+    const type = rainTypeFromTotal(total);
+    const card = document.createElement('div');
+    card.className = 'muni-card';
+    card.setAttribute('data-muni', m.name);
+      card.innerHTML = `
+        <div class="muni-name">${m.name}</div>
+        <div class="total-rain">${Math.round(total)}<span class="unit">mm</span></div>
+        <div class="rain-type-tag" data-type="${type}">${type.replace(/^(.)/,c=>c.toUpperCase())} Total</div>
+      `;
+    card.addEventListener('click', ()=>{
+      selectMunicipalityCard(m.name);
+    });
+    track.appendChild(card);
+  });
+  // Initial selection prefers 'San Fernando' if present
+  if(allForecastData.length){
+    const preferred = 'San Fernando';
+    const target = allForecastData.find(m=>m.name === preferred)?.name || allForecastData[0].name;
+    selectMunicipalityCard(target);
+    const card = [...track.children].find(c=>c.getAttribute('data-muni')===target);
+    if(card){
+      const idx = [...track.children].indexOf(card);
+      sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), Math.max(0, track.children.length - CARDS_PER_VIEW));
+      slide(0);
+    }
+  }
+  updateSliderButtons();
+}
+
+function selectMunicipalityCard(name){
+  selectedMunicipality = name;
+  document.querySelectorAll('.muni-card').forEach(c=>{
+    const isActive = c.getAttribute('data-muni')===name;
+    c.classList.toggle('active', isActive);
+    c.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    // Make only active card tabbable for cleaner keyboard navigation
+    c.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
+  updateWeather(name);
+}
+
+function slide(direction){
+  const track = document.getElementById('municipalityTrack');
+  if(!track) return;
+  const totalCards = track.children.length;
+  const maxIndex = Math.max(0, totalCards - CARDS_PER_VIEW);
+  sliderIndex = Math.min(Math.max(sliderIndex + direction, 0), maxIndex);
+  const cardWidth = track.querySelector('.muni-card')?.offsetWidth || 230;
+  const gap = 18; // keep in sync with CSS
+  const offset = -(sliderIndex * (cardWidth + gap));
+  track.style.transform = `translateX(${offset}px)`;
+  updateSliderButtons();
+}
+
+function updateSliderButtons(){
+  const prev = document.querySelector('.municipality-slider .prev');
+  const next = document.querySelector('.municipality-slider .next');
+  const track = document.getElementById('municipalityTrack');
+  if(!track) return;
+  const totalCards = track.children.length;
+  const maxIndex = Math.max(0, totalCards - CARDS_PER_VIEW);
+  if(prev) prev.disabled = sliderIndex === 0;
+  if(next) next.disabled = sliderIndex === maxIndex;
+  [prev,next].forEach(btn=>{
+    if(btn){
+      btn.style.opacity = btn.disabled ? .35 : 1;
+      btn.style.pointerEvents = btn.disabled ? 'none' : 'auto';
+    }
+  });
+}
+
+window.addEventListener('resize', ()=>{
+  // reset transform to avoid misalignment on resize
+  slide(0);
+});
+
+document.addEventListener('click', e=>{
+  if(e.target.matches('.municipality-slider .prev')) slide(-1);
+  if(e.target.matches('.municipality-slider .next')) slide(1);
+});
 
 async function updateWeather(muniName) {
   // Get forecast data for the selected municipality
@@ -195,33 +311,9 @@ async function updateWeather(muniName) {
 
 
   // 3. Update main panel (today)
-  const bigPanel = document.querySelector(".panel-big");
-  const todayData = forecastList[0];
-
-  const header = document.querySelector(".weather-panel-header h1");
-  if (header) header.textContent = muniName;
-  
-  if (bigPanel) {
-    bigPanel.querySelector(".day").textContent = "Today";
-    bigPanel.querySelector(".rainfall-amt").textContent = `${Math.round(todayData.rain)}mm Rainfall`;
-    bigPanel.querySelector(".rainfall-type span").textContent = todayData.type;
-  }
-
-  // Update the next 6 days for small panels
-  const smallPanels = document.querySelectorAll(".panel-small");
-  
-  smallPanels.forEach((panel, i) => {
-    const idx = i + 1; // next day index
-    const dayData = forecastList[idx];
-
-    if (dayData) {
-      const dayIdx = (todayIndex + idx) % 7;
-      panel.querySelector(".day-small").textContent = days[dayIdx];
-      panel.querySelector(".rainfall-amt").textContent = `${Math.round(dayData.rain)}mm`;
-      panel.querySelector(".rainfall-type-small span").textContent = dayData.type;
-      
-    }
-  });
+  // Update header only (cards now show totals)
+  const header = document.querySelector('.weather-panel-header h1');
+  if(header) header.textContent = muniName;
 
   // Update charts
   if (window.rainfallChart) {
@@ -240,11 +332,22 @@ async function updateWeather(muniName) {
   }
 }
 
-// Hook dropdown
-document.querySelectorAll(".options input").forEach(radio => {
-  radio.addEventListener("change", () => {
+// Hook dropdown (still supports existing dropdown selection focusing slider)
+document.querySelectorAll('.options input').forEach(radio => {
+  radio.addEventListener('change', () => {
     const label = document.querySelector(`label[for=${radio.id}]`);
-    if (label) updateWeather(label.getAttribute("data-txt"));
+    if (label) {
+      const name = label.getAttribute('data-txt');
+      selectMunicipalityCard(name);
+      // auto scroll slider so that selected card is visible
+      const track = document.getElementById('municipalityTrack');
+      const card = track ? [...track.children].find(c=>c.getAttribute('data-muni')===name) : null;
+      if(card){
+        const idx = [...track.children].indexOf(card);
+        sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), Math.max(0, track.children.length - CARDS_PER_VIEW));
+        slide(0);
+      }
+    }
   });
 });
 
