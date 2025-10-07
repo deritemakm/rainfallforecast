@@ -130,15 +130,17 @@ def add_seasonality_features(data):
     return data
     
 def get_rainfall_classification(rainfall: float) -> dict:
-    if rainfall >= 40: 
-        return {"type": "extreme", "condition": "Torrential Rain"}
-    if rainfall >= 30: 
-        return {"type": "heavy", "condition": "Heavy Rain"}
-    if rainfall >= 20: 
-        return {"type": "moderate", "condition": "Moderate Rain"}
-    if rainfall >= 10:
+    if rainfall == 0: 
+        return {"type": "none", "condition": "No Rain"}
+    if rainfall <= 5: 
         return {"type": "light", "condition": "Light Rain"}
-    return {"type": "none", "condition": "No Significant Rain"}
+    if rainfall <= 25: 
+        return {"type": "moderate", "condition": "Moderate Rain"}
+    if rainfall <= 50:
+        return {"type": "heavy", "condition": "Heavy Rain"}
+    if rainfall <= 100:
+        return {"type": "intense", "condition": "Intense Rain"}
+    return {"type": "torrential", "condition": "Torrential Rain"}
 
 class ForecastService:
     def __init__(self):

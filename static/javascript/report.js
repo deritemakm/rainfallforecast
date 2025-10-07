@@ -33,9 +33,10 @@ const CARDS_PER_VIEW = 5; // adjustable
 // Rain classification
 function classifyRain(mm) {
   if (mm === 0) return "No Rain";
-  if (mm <= 2) return "Light";
-  if (mm <= 10) return "Moderate";
-  if (mm <= 20) return "Heavy";
+  if (mm <= 5) return "Light";
+  if (mm <= 25) return "Moderate";
+  if (mm <= 50) return "Heavy";
+  if (mm <= 100) return "Intense";
   return "Torrential";
 }
 
