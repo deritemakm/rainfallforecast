@@ -248,6 +248,17 @@ function selectMunicipalityCard(name){
     // Make only active card tabbable for cleaner keyboard navigation
     c.setAttribute('tabindex', isActive ? '0' : '-1');
   });
+  // Center the newly active card in the slider viewport
+  const track = document.getElementById('municipalityTrack');
+  if(track){
+    const activeCard = [...track.children].find(c=>c.getAttribute('data-muni')===name);
+    if(activeCard){
+      const idx = [...track.children].indexOf(activeCard);
+      const maxIndex = Math.max(0, track.children.length - CARDS_PER_VIEW);
+      sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), maxIndex);
+      slide(0); // re-render position
+    }
+  }
   updateWeather(name);
 }
 
