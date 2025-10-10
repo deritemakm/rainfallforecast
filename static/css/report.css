@@ -437,6 +437,63 @@ h2 {
 .select:has(.options input[type="radio"]#option-3:checked) .selected::before {
   content: attr(data-three);
 }
+.select:has(.options input[type="radio"]#option-4:checked) .selected::before {
+  content: attr(data-four);
+}
+.select:has(.options input[type="radio"]#option-5:checked) .selected::before {
+  content: attr(data-five);
+}
+.select:has(.options input[type="radio"]#option-6:checked) .selected::before {
+  content: attr(data-six);
+}
+.select:has(.options input[type="radio"]#option-7:checked) .selected::before {
+  content: attr(data-seven);
+}
+.select:has(.options input[type="radio"]#option-8:checked) .selected::before {
+  content: attr(data-eight);
+}
+.select:has(.options input[type="radio"]#option-9:checked) .selected::before {
+  content: attr(data-nine);
+}
+.select:has(.options input[type="radio"]#option-10:checked) .selected::before {
+  content: attr(data-ten);
+}
+.select:has(.options input[type="radio"]#option-11:checked) .selected::before {
+  content: attr(data-eleven);
+}
+.select:has(.options input[type="radio"]#option-12:checked) .selected::before {
+  content: attr(data-twelve);
+}
+.select:has(.options input[type="radio"]#option-13:checked) .selected::before {
+  content: attr(data-thirteen);
+}
+.select:has(.options input[type="radio"]#option-14:checked) .selected::before {
+  content: attr(data-fourteen);
+}
+.select:has(.options input[type="radio"]#option-15:checked) .selected::before {
+  content: attr(data-fifteen);
+}
+.select:has(.options input[type="radio"]#option-16:checked) .selected::before {
+  content: attr(data-sixteen);
+}
+.select:has(.options input[type="radio"]#option-17:checked) .selected::before {
+  content: attr(data-seventeen);
+}
+.select:has(.options input[type="radio"]#option-18:checked) .selected::before {
+  content: attr(data-eighteen);
+}
+.select:has(.options input[type="radio"]#option-19:checked) .selected::before {
+  content: attr(data-nineteen);
+}
+.select:has(.options input[type="radio"]#option-20:checked) .selected::before {
+  content: attr(data-twenty);
+}
+.select:has(.options input[type="radio"]#option-21:checked) .selected::before {
+  content: attr(data-twentyone);
+}
+.select:has(.options input[type="radio"]#option-22:checked) .selected::before {
+  content: attr(data-twentytwo);
+}
 
 .options::-webkit-scrollbar {
   width: 6px;
