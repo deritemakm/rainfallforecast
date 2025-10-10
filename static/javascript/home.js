@@ -156,7 +156,7 @@ class WeatherMap {
             const optionIndex = parseInt(selectedOptionId.replace('option-', ''));
             const municipalityNames = [
                 "San Fernando", "Bacolor", "Santa Rita", "Guagua", "Sasmuan", "Lubao",
-                "Floridablanca", "Porac", "Angeles City", "Mabalacat", "Magalang", "Arayat",
+                "Floridablanca", "Porac", "Angeles", "Mabalacat", "Magalang", "Arayat",
                 "Candaba", "San Luis", "San Simon", "Apalit", "Masantol", "Macabebe",
                 "Minalin", "Santo Tomas", "Mexico", "Santa Ana"
             ];
@@ -384,15 +384,14 @@ class WeatherMap {
 
     updateBackgroundGradient(type) {
         const gradients = {
-            extreme: ["#2c3e50", "#000000", "#1a252f", "#434343"], // Torrential/Extreme
-            heavy: ["#1e3c72", "#2a5298", "#4e8bb5", "#9bbcd9"],   // Heavy Rain
-            moderate: ["#00c6ff", "#0072ff", "#5dade2", "#85c1e9"], // Moderate Rain
-            light: ["#6dd5ed", "#2193b0", "#a1c4fd", "#c2e9fb"],   // Light Rain
-            none: ["#fbc2eb", "#a6c1ee", "#f5f7fa", "#cfd9df"]     // No Rain
+            extreme: ["#2c3e50", "#000000", "#1a252f", "#434343"],
+            heavy: ["#1e3c72", "#2a5298", "#4e8bb5", "#9bbcd9"],
+            moderate: ["#00c6ff", "#0072ff", "#5dade2", "#85c1e9"],
+            light: ["#6dd5ed", "#2193b0", "#a1c4fd", "#c2e9fb"],
+            none: ["#fbc2eb", "#a6c1ee", "#f5f7fa", "#cfd9df"]
         };
 
         const colors = gradients[type] || gradients.light;
-
         const root = document.documentElement;
         root.style.setProperty("--gradient-color-1", colors[0]);
         root.style.setProperty("--gradient-color-2", colors[1]);
@@ -400,6 +399,12 @@ class WeatherMap {
         root.style.setProperty("--gradient-color-4", colors[3]);
 
         console.log(`🌈 Gradient updated for weather type: ${type}`, colors);
+
+        // 🔁 Refresh gradient animation
+        if (window.gradient) {
+            window.gradient.sectionColors = colors.map(c => normalizeColor(parseInt(c.replace('#', '0x'))));
+            window.gradient.material = window.gradient.initMaterial();
+        }
     }
 }
 
