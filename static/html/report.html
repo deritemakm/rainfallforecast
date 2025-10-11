@@ -105,79 +105,16 @@
               </div>
         </div>
 
-        <div class="parent">
-            <!--weather now-->
-            <div class="panel-big">
-                <div class="day-time">
-                    <div class="day">Monday</div>
-                    <div class="time">11:42 AM</div>
-                </div>
-                <img src="/static/weather-icons/torrential.svg" alt="" class="weather-status-icon">
-                <div class="rainfall-amt">33mm Rainfall</div>
-                <div class="rainfall-details">
-                    <div class="rainfall-type">
-                        <i data-feather="cloud"></i>
-                        <span>Heavy Rain</span>
-                    </div>
-                </div>
+        <div class="municipality-slider" aria-label="7-Day Total Rainfall by Municipality">
+            <button class="slide-btn prev" aria-label="Previous municipalities">&#10094;</button>
+            <div class="slider-viewport">
+              <div class="slider-track" id="municipalityTrack">
+                <!-- Cards injected dynamically by report.js -->
+              </div>
             </div>
-
-            <!--small panels-->
-            <div class="panel-small">
-                <div class="day-small">Tue</div>
-                <img src="/static/weather-icons/intense.svg" alt="" class="weather-status-icon-small">
-                <div class="rainfall-amt">25mm</div>
-                <div class="rainfall-type-small">
-                    <i data-feather="cloud"></i>
-                    <span>Torrential</span>
-                </div>
-            </div>
-            <div class="panel-small">
-                <div class="day-small">Wed</div>
-                <img src="/static/weather-icons/heavy.svg" alt="" class="weather-status-icon-small">
-                <div class="rainfall-amt">9mm</div>
-                <div class="rainfall-type-small">
-                    <i data-feather="cloud"></i>
-                    <span>Heavy</span>
-                </div>
-            </div>
-            <div class="panel-small">
-                <div class="day-small">Thur</div>
-                <img src="/static/weather-icons/moderate.svg" alt="" class="weather-status-icon-small">
-                <div class="rainfall-amt">6mm</div>
-                <div class="rainfall-type-small">
-                    <i data-feather="cloud"></i>
-                    <span>Moderate</span>
-                </div>
-            </div>
-            <div class="panel-small">
-                <div class="day-small">Fri</div>
-                <img src="/static/weather-icons/logo.svg" alt="" class="weather-status-icon-small">
-                <div class="rainfall-amt">2mm</div>
-                <div class="rainfall-type-small">
-                    <i data-feather="cloud"></i>
-                    <span>Light</span>
-                </div>
-            </div>
-            <div class="panel-small">
-                <div class="day-small">Sat</div>
-                <img src="/static/weather-icons/no-rain.svg" alt="" class="weather-status-icon-small">
-                <div class="rainfall-amt">0mm</div>
-                <div class="rainfall-type-small">
-                    <i data-feather="cloud"></i>
-                    <span>No Rain</span>
-                </div>
-            </div>
-            <div class="panel-small">
-                <div class="day-small">Sun</div>
-                <img src="/static/weather-icons/torrential.svg" alt="" class="weather-status-icon-small">
-                <div class="rainfall-amt">35mm</div>
-                <div class="rainfall-type-small">
-                    <i data-feather="cloud"></i>
-                    <span>Torrential</span>
-                </div>
-            </div>
-          </div>
+            <button class="slide-btn next" aria-label="Next municipalities">&#10095;</button>
+        </div>
+        <p class="slider-hint">Click a card to focus charts on that municipality. Totals represent summed forecast rainfall for the next 7 days.</p>
 
         <div class="charts-grid">
           <div class="chart-container">
