@@ -29,9 +29,6 @@ let allForecastData = [];
 let selectedMunicipality = null;
 let sliderIndex = 0; // current first visible card index
 const CARDS_PER_VIEW = 5; // adjustable
-let selectedMunicipality = null;
-let sliderIndex = 0; // current first visible card index
-const CARDS_PER_VIEW = 5; // adjustable
 
 // Rain classification
 function classifyRain(mm) {
