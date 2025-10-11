@@ -437,6 +437,63 @@ h2 {
 .select:has(.options input[type="radio"]#option-3:checked) .selected::before {
   content: attr(data-three);
 }
+.select:has(.options input[type="radio"]#option-4:checked) .selected::before {
+  content: attr(data-four);
+}
+.select:has(.options input[type="radio"]#option-5:checked) .selected::before {
+  content: attr(data-five);
+}
+.select:has(.options input[type="radio"]#option-6:checked) .selected::before {
+  content: attr(data-six);
+}
+.select:has(.options input[type="radio"]#option-7:checked) .selected::before {
+  content: attr(data-seven);
+}
+.select:has(.options input[type="radio"]#option-8:checked) .selected::before {
+  content: attr(data-eight);
+}
+.select:has(.options input[type="radio"]#option-9:checked) .selected::before {
+  content: attr(data-nine);
+}
+.select:has(.options input[type="radio"]#option-10:checked) .selected::before {
+  content: attr(data-ten);
+}
+.select:has(.options input[type="radio"]#option-11:checked) .selected::before {
+  content: attr(data-eleven);
+}
+.select:has(.options input[type="radio"]#option-12:checked) .selected::before {
+  content: attr(data-twelve);
+}
+.select:has(.options input[type="radio"]#option-13:checked) .selected::before {
+  content: attr(data-thirteen);
+}
+.select:has(.options input[type="radio"]#option-14:checked) .selected::before {
+  content: attr(data-fourteen);
+}
+.select:has(.options input[type="radio"]#option-15:checked) .selected::before {
+  content: attr(data-fifteen);
+}
+.select:has(.options input[type="radio"]#option-16:checked) .selected::before {
+  content: attr(data-sixteen);
+}
+.select:has(.options input[type="radio"]#option-17:checked) .selected::before {
+  content: attr(data-seventeen);
+}
+.select:has(.options input[type="radio"]#option-18:checked) .selected::before {
+  content: attr(data-eighteen);
+}
+.select:has(.options input[type="radio"]#option-19:checked) .selected::before {
+  content: attr(data-nineteen);
+}
+.select:has(.options input[type="radio"]#option-20:checked) .selected::before {
+  content: attr(data-twenty);
+}
+.select:has(.options input[type="radio"]#option-21:checked) .selected::before {
+  content: attr(data-twentyone);
+}
+.select:has(.options input[type="radio"]#option-22:checked) .selected::before {
+  content: attr(data-twentytwo);
+}
 
 .options::-webkit-scrollbar {
   width: 6px;
@@ -481,9 +538,34 @@ h2 {
 }
 
 .slider-viewport {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   flex: 1;
+  scroll-behavior: smooth;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #333 rgba(255,255,255,0.1);
 }
+
+/* Custom scrollbar for WebKit browsers */
+.slider-viewport::-webkit-scrollbar {
+  height: 8px;
+}
+
+.slider-viewport::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+
+.slider-viewport::-webkit-scrollbar-thumb {
+  background: #4e8bb5;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.slider-viewport::-webkit-scrollbar-thumb:hover {
+  background: #9bbcd9;
+}
+
 
 .slider-track {
   display: flex;
@@ -581,7 +663,6 @@ h2 {
 .rain-type-tag[data-type="heavy"] { background: linear-gradient(120deg,#2a5298,#1e3c72); }
 .rain-type-tag[data-type="extreme"] { background: linear-gradient(120deg,#742c4a,#b80d0d); }
 
-
 .slide-btn {
   background: rgba(0,0,0,0.45);
   border: 1px solid rgba(255,255,255,0.15);
@@ -604,10 +685,15 @@ h2 {
 .slider-hint {
   font-size: .8rem;
   color: #d9d9d9;
-  opacity: .75;
   margin-top: -10px;
-  margin-bottom: 10px;
   text-align: center;
+}
+
+.data-note {
+  font-size: 0.85rem;
+  color: #d9d9d9;
+  text-align: center;
+  margin-top: -5px;
 }
 
 @media (max-width: 1200px) {

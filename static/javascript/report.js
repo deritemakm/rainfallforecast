@@ -29,14 +29,17 @@ let allForecastData = [];
 let selectedMunicipality = null;
 let sliderIndex = 0; // current first visible card index
 const CARDS_PER_VIEW = 5; // adjustable
+let selectedMunicipality = null;
+let sliderIndex = 0; // current first visible card index
+const CARDS_PER_VIEW = 5; // adjustable
 
 // Rain classification
 function classifyRain(mm) {
   if (mm === 0) return "No Rain";
-  if (mm <= 5) return "Light";
-  if (mm <= 25) return "Moderate";
-  if (mm <= 50) return "Heavy";
-  if (mm <= 100) return "Intense";
+  if (mm <= 60) return "Light";
+  if (mm <= 180) return "Moderate";
+  if (mm <= 360) return "Heavy";
+  if (mm <= 720) return "Intense";
   return "Torrential";
 }
 
@@ -113,7 +116,7 @@ function initCharts() {
   window.conditionsChart = new Chart(conditionsCtx, {
     type: 'doughnut',
     data: {
-      labels: ['No Rain', 'Light', 'Moderate', 'Heavy', 'Torrential'],
+      labels: ['No Rain', 'Light', 'Moderate', 'Heavy', 'Intense', 'Torrential'],
       datasets: [{
         data: [0, 0, 0, 0, 0],
         backgroundColor: [
@@ -339,7 +342,7 @@ async function updateWeather(muniName) {
   }
   
   if (window.conditionsChart) {
-    const counts = { "No Rain": 0, "Light": 0, "Moderate": 0, "Heavy": 0, "Torrential": 0 };
+    const counts = { "No Rain": 0, "Light": 0, "Moderate": 0, "Heavy": 0, "Intense": 0, "Torrential": 0 };
     rainfallData.forEach(mm => {
       counts[classifyRain(mm)]++;
     });
