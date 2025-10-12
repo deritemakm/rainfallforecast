@@ -48,7 +48,15 @@
                     <div class="time">11:42 AM</div>
                 </div>
                 <img src="/static/weather-icons/torrential.svg" alt="" class="weather-status-icon">
-                <div class="rainfall-amt">33mm Rainfall</div>
+                <div class="rainfall-amt-panel">
+                    <div class="rainfall-amt">
+                        33 mm Rainfall
+                    </div>
+                    <div class="rainfall-tooltip">
+                        <i data-feather="info"></i>
+                        <span class="tooltip-text">Rainfall amount (mm) represents total daily rainfall.</span>
+                    </div>
+                </div>
                 <div class="rainfall-details">
                     <div class="rainfall-type">
                         <i data-feather="cloud"></i>
@@ -187,12 +195,18 @@
 
             <div id="map"></div>
 
-            <div class="map-legend">
-                <div><img src="/static/weather-icons/torrential.svg" alt="Torrential"> Torrential</div>
-                <div><img src="/static/weather-icons/intense.svg" alt="Intense"> Intense</div>
-                <div><img src="/static/weather-icons/heavy.svg" alt="Heavy"> Heavy</div>
-                <div><img src="/static/weather-icons/moderate.svg" alt="Moderate"> Moderate</div>
-                <div><img src="/static/weather-icons/no-rain.svg" alt="Light"> Light</div>
+            <div class="map-legend collapsible">
+                <div class="legend-header">
+                    <i data-feather="chevron-down"></i>
+                    <span>LEGEND</span>
+                </div>
+                <div class="legend-content">
+                    <div><img src="/static/weather-icons/torrential.svg" alt="Torrential"> Torrential</div>
+                    <div><img src="/static/weather-icons/intense.svg" alt="Intense"> Intense</div>
+                    <div><img src="/static/weather-icons/heavy.svg" alt="Heavy"> Heavy</div>
+                    <div><img src="/static/weather-icons/moderate.svg" alt="Moderate"> Moderate</div>
+                    <div><img src="/static/weather-icons/logo.svg" alt="Light"> Light</div>
+                </div>
             </div>
         </div>
     </div>

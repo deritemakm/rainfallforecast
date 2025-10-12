@@ -411,6 +411,18 @@ class WeatherMap {
 // Initialize the weather map application
 let weatherMapApp;
 
+// Collapsible map legend toggle
+document.addEventListener('DOMContentLoaded', () => {
+    const legend = document.querySelector('.map-legend.collapsible');
+    const header = legend.querySelector('.legend-header');
+    const icon = header.querySelector('i');
+
+    header.addEventListener('click', () => {
+        legend.classList.toggle('collapsed');
+        feather.replace(); // update the chevron icon direction
+    });
+});
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     weatherMapApp = new WeatherMap();
