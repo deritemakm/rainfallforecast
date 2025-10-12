@@ -130,7 +130,7 @@ def add_seasonality_features(data):
     return data
     
 def get_rainfall_classification(rainfall: float) -> dict:
-    if rainfall <= 0.5: 
+    if rainfall <= 0: 
         return {"type": "none", "condition": "No Rain"}
     if rainfall <= 60: 
         return {"type": "light", "condition": "Light Rain"}
