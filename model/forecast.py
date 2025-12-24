@@ -26,7 +26,6 @@ import requests_cache
 from retry_requests import retry
 from requests import Session
 
-# Suppress the InconsistentVersionWarning from scikit-learn/pandas
 warnings.filterwarnings("ignore", category=UserWarning)
 
 # MLP CONFIGS
@@ -50,6 +49,7 @@ class MLPConfig:
     save_best_model: bool = True
     model_save_path: str = "best_model.pth"
     weight_init: str = 'xavier_uniform'
+    initialization_scale: float = 1.0
 
     def __post_init__(self):
         if self.hidden_layers is None:
@@ -70,6 +70,8 @@ class FlexibleMLP(nn.Module):
                 layers.append(nn.ReLU())
             elif config.activation_function.lower() == 'tanh':
                 layers.append(nn.Tanh())
+            elif config.activation_function.lower() == 'gelu':
+                layers.append(nn.GELU())
             else:
                 raise ValueError("Unsupported activation function")
 
@@ -121,16 +123,14 @@ def add_seasonality_features(data):
     data = data.copy()
     data['month_sin'] = np.sin(2 * np.pi * data['Month'] / 12)
     data['month_cos'] = np.cos(2 * np.pi * data['Month'] / 12)
-    data['day_of_year'] = data['Month'] * 30 + data['Day'] # Approximate
-    # More accurate approach
-    # data['day_of_year'] = pd.to_datetime(data[['Year', 'Month', 'Day']]).dt.dayofyear
+    data['day_of_year'] = data['Month'] * 30 + data['Day'] 
     data['day_sin'] = np.sin(2 * np.pi * data['day_of_year'] / 365)
     data['day_cos'] = np.cos(2 * np.pi * data['day_of_year'] / 365)
     data = data.drop(columns=['day_of_year'])
     return data
     
 def get_rainfall_classification(rainfall: float) -> dict:
-    if rainfall <= 0: 
+    if rainfall <= 0.4: 
         return {"type": "none", "condition": "No Rain"}
     if rainfall <= 60: 
         return {"type": "light", "condition": "Light Rain"}
@@ -145,9 +145,8 @@ def get_rainfall_classification(rainfall: float) -> dict:
 class ForecastService:
     def __init__(self):
         # Dictionary to hold all loaded models, imputers, and scalers
-        self.model_registry = {}  # Key: post_id (e.g., 2000), Value: {model, imputer, scaler, config}
-        self.cache = {}  # Key: post_id, Value: last successful forecast result (list)
-        self.last_update = None
+        self.model_registry = {}  # Key: post_id, Value: {model, imputer, scaler, config}
+        self.cache = {}  # Key: post_id, Value: forecast result (list)
         
         # Open-Meteo API setup
         cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
@@ -164,7 +163,6 @@ class ForecastService:
         
         sys.modules['__main__'].CustomMinMaxScaler = CustomMinMaxScaler
 
-        # Load SHARED Imputer and Scaler
         try:
             shared_imputer_path = os.path.join(full_model_dir, "model_imputer.pkl")
             shared_scaler_path = os.path.join(full_model_dir, "model_scaler.pkl")
@@ -184,13 +182,12 @@ class ForecastService:
         for model_file in model_files:
             post_id = None 
             try:
-                # Extracts the post_id from 'model_2000.pth'
                 post_id = int(model_file.split('_')[1].split('.')[0])
                 
                 model_path = os.path.join(full_model_dir, model_file)
                 
                 # Load PyTorch Model
-                checkpoint = torch.load(model_path, map_location='cpu')
+                checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
                 config = MLPConfig(**checkpoint['config_dict'])
                 
                 actual_input_size = checkpoint['model_state_dict']['network.0.weight'].shape[1]
@@ -202,7 +199,6 @@ class ForecastService:
 
                 self.model_registry[post_id] = {
                     'model': model,
-                    # Assign SHARED models to the registry entry
                     'imputer': shared_imputer, 
                     'scaler': shared_scaler,
                     'config': config
@@ -218,7 +214,7 @@ class ForecastService:
     # Fetch yesterday's data to forecast 7-day ahead (today + 6 days)
     def fetch_yesterday_weather(self, lat: float, lon: float) -> Dict[str, Any]:
         end_date = datetime.date.today() - datetime.timedelta(days=1)
-        start_date = end_date # Fetching just one day
+        start_date = end_date 
 
         url = "https://archive-api.open-meteo.com/v1/archive" 
         params = {
@@ -240,7 +236,6 @@ class ForecastService:
 
             daily = response.Daily()
             
-            # Convert NumPy arrays to lists for JSON serialization later
             return {
                 "daily": {
                     "time": [pd.to_datetime(daily.Time(), unit="s", utc=True).isoformat()],
@@ -262,7 +257,7 @@ class ForecastService:
     def _preprocessing_data(self, weather_api_data: dict, imputer: IterativeImputer, scaler: CustomMinMaxScaler, config: MLPConfig) -> pd.DataFrame:
         df = pd.DataFrame(weather_api_data["daily"])
         
-        # The input data is for yesterday, but we need features for TODAY (the day to be forecasted)
+        # The input data is for yesterday
         df['date'] = pd.to_datetime(df['time']).dt.normalize() + datetime.timedelta(days=1)
         
         df['Year'] = df['date'].dt.year
@@ -283,7 +278,6 @@ class ForecastService:
         else:
             df_final_input = df_imputed
         
-        # Ensure final features match what the scaler was trained on
         df_final_input = df_final_input[scaler.feature_names_in_]
 
         df_normalized = scaler.transform(df_final_input)
@@ -307,7 +301,7 @@ class ForecastService:
         return denorm_predictions
 
     # Main forecasting process
-    def generate_single_forecast(self, post_id: int, lat: float, lon: float) -> list:        
+    def generate_forecast(self, post_id: int, lat: float, lon: float) -> list:        
         # Get Model Assets
         if post_id not in self.model_registry:
             raise ValueError(f"Model for Post ID {post_id} not loaded/found.")
@@ -356,14 +350,13 @@ class ForecastService:
 
         return forecast_list
 
-    #  MAIN FORECAST PROCESSING AND CACHING (TO BE CALLED BY main.py SCRIPT)
-    async def run_batch_forecast_and_cache(self, municipalities: List[Dict[str, Any]]):
-        print("\n=== Starting Daily Batch Forecast ===")
+    #  MAIN FORECAST PROCESSING
+    async def run_forecasting_pipeline(self, municipalities: List[Dict[str, Any]]):
         new_cache = {}
         successful_count = 0
         
         for muni in municipalities:
-            post_id = muni.get('post_id') # Assume post_id is now in your muni data
+            post_id = muni.get('post_id')
             lat, lon = muni['coords'][0], muni['coords'][1]
             
             if post_id not in self.model_registry:
@@ -371,12 +364,11 @@ class ForecastService:
                 continue
                 
             try:
-                # Get the N-day forecast list (Day 0 to Day N-1)
                 forecast_list = await asyncio.to_thread(
-                    self.generate_single_forecast, post_id, lat, lon
+                    self.generate_forecast, post_id, lat, lon
                 )
                 
-                # Current data (Day 0) is the first item in the list
+                # Current data is the first item in the list
                 current_day_data = forecast_list[0]
                 
                 final_muni_data = {
@@ -393,13 +385,11 @@ class ForecastService:
                 successful_count += 1
                 
             except Exception as e:
-                print(f"  ❌ Forecast failed for {muni['name']} (Post ID {post_id}): {e}")
-                # You can choose to keep the old cached value or use a fallback here
+                print(f"Forecast failed for {muni['name']} (Post ID {post_id}): {e}")
                 if post_id in self.cache:
                     new_cache[post_id] = self.cache[post_id] 
                 
         self.cache = new_cache
-        self.last_update = datetime.datetime.now()
         print(f"\nBatch Forecast Complete. {successful_count}/{len(municipalities)} municipalities updated.")
         return list(self.cache.values())
 

@@ -52,18 +52,18 @@ app = FastAPI(title="Rainfall Forecast API")
 async def startup_event():
     print("FastAPI Startup: Loading All Models...")
     
-    # Load all models into the service registry
+    # Load all models into the models registry
     try:
         forecast_service.load_all_models()
     except Exception as e:
         print(f"FATAL ERROR during model loading: {e}")
     
-    # Schedule the daily forecast job (1:00 AM)
-    DAILY_UPDATE_HOUR = 1
+    # Schedule the daily forecast job (12:00 AM)
+    DAILY_UPDATE_HOUR = 0
     DAILY_UPDATE_MINUTE = 0
     
     scheduler.add_job(
-        forecast_service.run_batch_forecast_and_cache, 
+        forecast_service.run_forecasting_pipeline, 
         'cron', 
         hour=DAILY_UPDATE_HOUR, 
         minute=DAILY_UPDATE_MINUTE, 
@@ -72,11 +72,11 @@ async def startup_event():
     )
     
     scheduler.start()
-    print(f"✅ Daily forecast job scheduled for {DAILY_UPDATE_HOUR:02}:{DAILY_UPDATE_MINUTE:02}.")
+    print(f"Daily forecast job scheduled for {DAILY_UPDATE_HOUR:02}:{DAILY_UPDATE_MINUTE:02}.")
 
     # Run the forecast once immediately on startup for fresh data
     asyncio.create_task(
-        forecast_service.run_batch_forecast_and_cache(pampanga_municipalities_data)
+        forecast_service.run_forecasting_pipeline(pampanga_municipalities_data)
     )
     print("Initial forecast task started in background.")
 
@@ -96,9 +96,6 @@ async def get_all_weather_data():
             status_code=503, 
             detail="Forecast data is not yet available. Please wait for the initial forecast job to complete."
         )
-
-    last_update = forecast_service.last_update.isoformat() if forecast_service.last_update else "N/A"
-    print(f"Serving weather data from cache. Last updated: {last_update}")
     
     return cached_data
 
