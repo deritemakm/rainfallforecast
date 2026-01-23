@@ -6,7 +6,7 @@
     <title>GrokCast: 7-Day Rainfall Forecast for Pampanga</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="/static/css/index.css" />
-    <link rel="icon" href="/static/weather-icons/logo.svg">
+    <link rel="icon" href="/static/weather-icon/No-rain.svg">
     
     <!--Font from Google-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +47,7 @@
                     <div class="day">Monday</div>
                     <div class="time">11:42 AM</div>
                 </div>
-                <img src="/static/weather-icons/torrential.svg" alt="" class="weather-status-icon">
+                <img src="/static/weather-icon/torrential.svg" alt="" class="weather-status-icon">
                 <div class="rainfall-amt-panel">
                     <div class="rainfall-amt">
                         33 mm Rainfall
@@ -76,7 +76,7 @@
             <!--small panels-->
             <div class="panel-small">
                 <div class="day-small">Tue</div>
-                <img src="weather-icons/intense.svg" alt="" class="weather-status-icon-small">
+                <img src="weather-icon/intense-rain.svg" alt="" class="weather-status-icon-small">
                 <div class="rainfall-amt">25mm</div>
                 <div class="rainfall-type-small">
                     <i data-feather="cloud"></i>
@@ -85,7 +85,7 @@
             </div>
             <div class="panel-small">
                 <div class="day-small">Wed</div>
-                <img src="weather-icons/heavy.svg" alt="" class="weather-status-icon-small">
+                <img src="weather-icon/heavy-rain.svg" alt="" class="weather-status-icon-small">
                 <div class="rainfall-amt">9mm</div>
                 <div class="rainfall-type-small">
                     <i data-feather="cloud"></i>
@@ -94,7 +94,7 @@
             </div>
             <div class="panel-small">
                 <div class="day-small">Thur</div>
-                <img src="weather-icons/moderate.svg" alt="" class="weather-status-icon-small">
+                <img src="weather-icon/moderate-rain.svg" alt="" class="weather-status-icon-small">
                 <div class="rainfall-amt">6mm</div>
                 <div class="rainfall-type-small">
                     <i data-feather="cloud"></i>
@@ -103,7 +103,7 @@
             </div>
             <div class="panel-small">
                 <div class="day-small">Fri</div>
-                <img src="weather-icons/logo.svg" alt="" class="weather-status-icon-small">
+                <img src="weather-icon/light-rain.svg" alt="" class="weather-status-icon-small">
                 <div class="rainfall-amt">2mm</div>
                 <div class="rainfall-type-small">
                     <i data-feather="cloud"></i>
@@ -112,7 +112,7 @@
             </div>
             <div class="panel-small">
                 <div class="day-small">Sat</div>
-                <img src="weather-icons/no-rain.svg" alt="" class="weather-status-icon-small">
+                <img src="weather-icon/no-rain.svg" alt="" class="weather-status-icon-small">
                 <div class="rainfall-amt">0mm</div>
                 <div class="rainfall-type-small">
                     <i data-feather="cloud"></i>
@@ -121,7 +121,7 @@
             </div>
             <div class="panel-small">
                 <div class="day-small">Sun</div>
-                <img src="weather-icons/torrential.svg" alt="" class="weather-status-icon-small">
+                <img src="weather-icon/torrential-rain.svg" alt="" class="weather-status-icon-small">
                 <div class="rainfall-amt">35mm</div>
                 <div class="rainfall-type-small">
                     <i data-feather="cloud"></i>
@@ -134,7 +134,7 @@
             <div class="map-header">
                 <h2>Map of Pampanga</h2>
                 <div class="dropdown">
-                    <h2>Choose Municipality:</h2>
+                    <h2 class="dropdown-label">Choose Municipality:</h2>
                     <div class="select">
                         <div
                         class="selected"
@@ -198,14 +198,29 @@
             <div class="map-legend collapsible">
                 <div class="legend-header">
                     <i data-feather="chevron-down"></i>
-                    <span>LEGEND</span>
+                    <span>RAIN TYPE</span>
                 </div>
                 <div class="legend-content">
-                    <div><img src="/static/weather-icons/torrential.svg" alt="Torrential"> Torrential</div>
-                    <div><img src="/static/weather-icons/intense.svg" alt="Intense"> Intense</div>
-                    <div><img src="/static/weather-icons/heavy.svg" alt="Heavy"> Heavy</div>
-                    <div><img src="/static/weather-icons/moderate.svg" alt="Moderate"> Moderate</div>
-                    <div><img src="/static/weather-icons/logo.svg" alt="Light"> Light</div>
+                    <div class="legend-item">
+                        <img src="/static/weather-icon/Torrential-rain.svg" alt="Torrential">
+                        <p>Torrential</p>
+                    </div>
+                    <div class="legend-item">
+                        <img src="/static/weather-icon/Intense-rain.svg" alt="Intense">
+                        <p>Intense</p>
+                    </div>
+                    <div class="legend-item">
+                        <img src="/static/weather-icon/Heavy-rain.svg" alt="Heavy">
+                        <p>Heavy</p>
+                    </div>
+                    <div class="legend-item">
+                        <img src="/static/weather-icon/Moderate-rain.svg" alt="Moderate">
+                        <p>Moderate</p>
+                    </div>
+                    <div class="legend-item">
+                        <img src="/static/weather-icon/Light-rain.svg" alt="Light">
+                        <p>Light</p>
+                    </div>
                 </div>
             </div>
         </div>
