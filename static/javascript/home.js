@@ -227,7 +227,7 @@ class WeatherMap {
     // Get icon path based on weather type
     getIconPath(type) {
         const iconMap = {
-            'extreme': '/static/weather-icon/orrential-rain.svg',
+            'extreme': '/static/weather-icon/torrential-rain.svg',
             'heavy': '/static/weather-icon/Heavy-rain.svg', 
             'moderate': '/static/weather-icon/Moderate-rain.svg',
             'light': '/static/weather-icon/Light-rain.svg',
