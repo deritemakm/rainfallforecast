@@ -152,6 +152,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: flex-start;
   flex-shrink: 0;
 }
 
@@ -176,9 +177,11 @@ h2 {
 }
 
 .weather-status-icon {
-  width: 80px;
+  width: 100px;
   height: auto;
   display: block;
+  align-self: flex-start;
+  margin: 0;
 }
 
 .weather-status-icon-small {
@@ -187,6 +190,7 @@ h2 {
   object-fit: contain;
   margin: 0;
   display: block;
+  align-self: center;
 }
 
 .rainfall-amt-panel {

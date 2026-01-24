@@ -227,11 +227,11 @@ class WeatherMap {
     // Get icon path based on weather type
     getIconPath(type) {
         const iconMap = {
-            'extreme': '/static/weather-icon/torrential-rain.svg',
-            'heavy': '/static/weather-icon/heavy-rain.svg', 
-            'moderate': '/static/weather-icon/moderate-rain.svg',
-            'light': '/static/weather-icon/light-rain.svg',
-            'none': '/static/weather-icon/no-rain.svg'
+            'extreme': '/static/weather-icon/orrential-rain.svg',
+            'heavy': '/static/weather-icon/Heavy-rain.svg', 
+            'moderate': '/static/weather-icon/Moderate-rain.svg',
+            'light': '/static/weather-icon/Light-rain.svg',
+            'none': '/static/weather-icon/No-rain.svg'
         };
         return iconMap[type] || iconMap.light;
     }
