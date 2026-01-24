@@ -239,11 +239,11 @@ class WeatherMap {
     // Create popup content
     createPopupContent(municipality) {
         return `
-            <div class="weather-popup" style="text-align: center; padding: 10px;">
-                <h3 style="margin: 0 0 10px 0; color: #333;">${municipality.name}</h3>
-                <div style="font-size: 18px; font-weight: bold; color: #005280;">${Math.round(municipality.rainfall)}mm Rainfall</div>
-                <div style="color: #666; margin: 5px 0;">${municipality.condition}</div>
-                <img src="${this.getIconPath(municipality.type)}" style="width: 32px; height: 32px; margin-top: 5px;" alt="${municipality.type}">
+            <div class="weather-popup" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 2px solid #4e8bb5;">
+                <h3 style="color: #1a1a1a; font-size: 18px; font-weight: 600;">${municipality.name}</h3>
+                <img src="${this.getIconPath(municipality.type)}" style="width: 50px; height: 50px; margin-top: 5px;" alt="${municipality.type}">
+                <div style="font-size: 22px; font-weight: bold; color: #2a5298;">${Math.round(municipality.rainfall)}mm</div>
+                <div style="color: #333; font-size: 14px; font-weight: 500;">${municipality.condition}</div>
             </div>
         `;
     }
