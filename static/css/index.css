@@ -535,6 +535,14 @@ h2 {
   border: 1px solid #333;
 }
 
+.selected svg, .selected i {
+  transition: transform 0.3s ease;
+}
+
+.select.active .selected svg, .select.active .selected i {
+  transform: rotate(180deg);
+}
+
 .options {
   display: flex;
   flex-direction: column;
@@ -556,13 +564,11 @@ h2 {
   overflow-x: hidden;
 }
 
-.select:hover > .options {
+.select.active .options {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
-}
-
-.select:hover > .selected .arrow {
-  transform: rotate(0deg);
+  pointer-events: auto;
 }
 
 .option {
@@ -572,7 +578,9 @@ h2 {
   background-color: #1B1B1D;
   width: 150px;
   font-size: 15px;
+  cursor: pointer;
 }
+
 .option:hover {
   background-color: #6a778e;
   color: #D9D9D9;
@@ -584,17 +592,23 @@ h2 {
 
 .options label {
   display: inline-block;
+  cursor: pointer;
 }
+
 .options label::before {
   content: attr(data-txt);
 }
 
 .options input[type="radio"]:checked + label {
-  display: none;
+  background-color: #4e8bb5;
+  color: #D9D9D9;
+  cursor: default;
+  pointer-events: none;
+  color: #1B1B1D;
 }
 
-.options input[type="radio"]#all:checked + label {
-  display: none;
+.options input[type="radio"]:checked + label:hover {
+  background-color: #4e8bb5;
 }
 
 .selected:not(:empty)::before {

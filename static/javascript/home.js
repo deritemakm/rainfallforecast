@@ -104,6 +104,32 @@ class WeatherMap {
                 }
             });
         });
+
+        // Dropdown toggle functionality (NEW)
+        const dropdown = document.querySelector('.select');
+        const selected = dropdown?.querySelector('.selected');
+        const options = dropdown?.querySelector('.options');
+        
+        if (selected && options) {
+            selected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+            
+            // Close dropdown when an option is selected
+            this.domElements.municipalityOptions?.forEach(option => {
+                option.addEventListener('change', () => {
+                    dropdown.classList.remove('active');
+                });
+            });
+        }
         
         // Weather panel hover effects
         this.addInteractiveEffects();
