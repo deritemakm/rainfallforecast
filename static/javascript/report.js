@@ -117,20 +117,20 @@ function initCharts() {
       datasets: [{
         data: [0, 0, 0, 0, 0],
         backgroundColor: [
-          'rgba(255, 206, 84, 0.8)',
-          'rgba(155, 188, 217, 0.8)',
-          'rgba(78, 139, 181, 0.8)',
-          'rgba(42, 82, 152, 0.8)',
-          'rgba(30, 60, 114, 0.8)',
-          'rgba(30, 60, 114, 1)'
+          'rgba(217, 217, 217, 0.8)',
+          'rgba(135, 206, 235, 0.8)',
+          'rgba(255, 165, 0, 0.8)',
+          'rgba(255, 99, 71, 0.8)',
+          'rgba(220, 20, 60, 0.8)',
+          'rgba(139, 0, 0, 1)'
         ],
         borderColor: [
-          'rgba(255, 206, 84, 1)',
-          'rgba(155, 188, 217, 1)',
-          'rgba(78, 139, 181, 1)',
-          'rgba(42, 82, 152, 1)',
-          'rgba(30, 60, 114, 1)',
-          'rgba(30, 60, 114, 1)'
+          'rgba(217, 217, 217, 1)',
+          'rgba(135, 206, 235, 1)',
+          'rgba(255, 165, 0, 1)',
+          'rgba(255, 99, 71, 1)',
+          'rgba(220, 20, 60, 1)',
+          'rgba(139, 0, 0, 1)'
         ],
         borderWidth: 2
       }]
@@ -156,35 +156,35 @@ function initCharts() {
 
 async function fetchData() {
   try {
-      const res = await fetch('/api/weather-data');
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      allForecastData = await res.json();
-  console.log("Forecast data loaded:", allForecastData.length, "municipalities.");
+    const res = await fetch('/api/weather-data');
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    allForecastData = await res.json();
+    console.log("Forecast data loaded:", allForecastData.length, "municipalities.");
 
-  buildMunicipalitySlider();
+    buildMunicipalitySlider();
 
-      // After loading, ensure the initial display is correct
-      const initialMuni = document.querySelector(".options input:checked") 
-                         ? document.querySelector(".options input:checked").nextElementSibling.getAttribute("data-txt") 
-                         : "Angeles";
-      
-      const initialRadio = document.querySelector(`label[data-txt="${initialMuni}"]`).previousElementSibling;
+    // After loading, ensure the initial display is correct
+    const initialMuni = document.querySelector(".options input:checked") 
+                       ? document.querySelector(".options input:checked").nextElementSibling.getAttribute("data-txt") 
+                       : "Angeles";
+    
+    const initialRadio = document.querySelector(`label[data-txt="${initialMuni}"]`)?.previousElementSibling;
 
-      if (initialRadio) {
-          initialRadio.checked = true;
-          // Use unified card selection so active styling & charts sync
-          selectMunicipalityCard(initialMuni);
-          // Center/ensure visibility in slider
-          const track = document.getElementById('municipalityTrack');
-          const card = track ? [...track.children].find(c=>c.getAttribute('data-muni')===initialMuni) : null;
-          if(card){
-            const idx = [...track.children].indexOf(card);
-            sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), Math.max(0, track.children.length - CARDS_PER_VIEW));
-            slide(0);
-          }
+    if (initialRadio) {
+      initialRadio.checked = true;
+      // Use unified card selection so active styling & charts sync
+      selectMunicipalityCard(initialMuni);
+      // Center/ensure visibility in slider
+      const track = document.getElementById('municipalityTrack');
+      const card = track ? [...track.children].find(c=>c.getAttribute('data-muni')===initialMuni) : null;
+      if(card){
+        const idx = [...track.children].indexOf(card);
+        sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), Math.max(0, track.children.length - CARDS_PER_VIEW));
+        slide(0);
       }
+    }
   } catch (e) {
-      console.error("Failed to fetch forecast data from backend:", e);
+    console.error("Failed to fetch forecast data from backend:", e);
   }
 }
 
@@ -201,7 +201,6 @@ function rainTypeFromTotal(total){
   return 'none';
 }
 
-
 function buildMunicipalitySlider(){
   const track = document.getElementById('municipalityTrack');
   if(!track) return;
@@ -216,17 +215,26 @@ function buildMunicipalitySlider(){
     const card = document.createElement('div');
     card.className = 'muni-card';
     card.setAttribute('data-muni', m.name);
-      card.innerHTML = `
-        <div class="muni-name">${m.name}</div>
+    card.innerHTML = `
+      <div class="muni-name">${m.name}</div>
+      <div class="total-rain-wrapper">
         <div class="total-rain">${Math.round(total)}<span class="unit">mm</span></div>
-        <div class="avg-rain" title="7-day average rainfall">${avg.toFixed(1)}<span class="unit"> Avg mm</span></div>
-        <div class="rain-type-tag" data-type="${type}">${type.replace(/^(.)/,c=>c.toUpperCase())} Total</div>
-      `;
+        <div class="card-tooltip">
+          <i data-feather="info"></i>
+          <span class="card-tooltip-text">Total rainfall amount per week</span>
+        </div>
+      </div>
+      <div class="avg-rain" title="7-day average rainfall">${avg.toFixed(1)}<span class="unit"> Avg mm</span></div>
+      <div class="rain-type-tag" data-type="${type}">${type.replace(/^(.)/,c=>c.toUpperCase())} Total</div>
+    `;
     card.addEventListener('click', ()=>{
       selectMunicipalityCard(m.name);
     });
     track.appendChild(card);
   });
+  // Replace feather icons for newly added cards
+  if(typeof feather !== 'undefined') feather.replace();
+  
   // Initial selection prefers 'San Fernando' if present
   if(allForecastData.length){
     const preferred = 'San Fernando';
@@ -327,8 +335,6 @@ async function updateWeather(muniName) {
     return i === 0 ? "Today" : days[dayIndex];
   });
 
-
-  // 3. Update main panel (today)
   // Update header only (cards now show totals)
   const header = document.querySelector('.weather-panel-header h1');
   if(header) header.textContent = muniName;
@@ -350,29 +356,6 @@ async function updateWeather(muniName) {
   }
 }
 
-// Hook dropdown (still supports existing dropdown selection focusing slider)
-document.querySelectorAll('.options input').forEach(radio => {
-  radio.addEventListener('change', () => {
-    const label = document.querySelector(`label[for=${radio.id}]`);
-    if (label) {
-      const name = label.getAttribute('data-txt');
-      selectMunicipalityCard(name);
-      // auto scroll slider so that selected card is visible
-      const track = document.getElementById('municipalityTrack');
-      const card = track ? [...track.children].find(c=>c.getAttribute('data-muni')===name) : null;
-      if(card){
-        const idx = [...track.children].indexOf(card);
-        sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), Math.max(0, track.children.length - CARDS_PER_VIEW));
-        slide(0);
-      }
-    }
-  });
-});
-
-// Initialize charts & default weather
-initCharts();
-fetchData();
-
 // Update time every second
 function updateTime() {
   const now = new Date();
@@ -383,5 +366,54 @@ function updateTime() {
     });
   }
 }
-updateTime();
-setInterval(updateTime, 1000);
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize charts & default weather
+  initCharts();
+  fetchData();
+  
+  // Start time updates
+  updateTime();
+  setInterval(updateTime, 1000);
+  
+  // Dropdown toggle functionality
+  const dropdown = document.querySelector('.select');
+  const selected = dropdown?.querySelector('.selected');
+  const options = dropdown?.querySelector('.options');
+  
+  if (selected && options) {
+    selected.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+    
+    // Hook dropdown (supports existing dropdown selection focusing slider)
+    document.querySelectorAll('.options input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const label = document.querySelector(`label[for=${radio.id}]`);
+        if (label) {
+          const name = label.getAttribute('data-txt');
+          selectMunicipalityCard(name);
+          // auto scroll slider so that selected card is visible
+          const track = document.getElementById('municipalityTrack');
+          const card = track ? [...track.children].find(c=>c.getAttribute('data-muni')===name) : null;
+          if(card){
+            const idx = [...track.children].indexOf(card);
+            sliderIndex = Math.min(Math.max(idx - Math.floor(CARDS_PER_VIEW/2),0), Math.max(0, track.children.length - CARDS_PER_VIEW));
+            slide(0);
+          }
+        }
+        // Close dropdown after selection
+        dropdown.classList.remove('active');
+      });
+    });
+  }
+});
