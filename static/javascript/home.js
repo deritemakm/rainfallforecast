@@ -452,7 +452,27 @@ document.addEventListener('DOMContentLoaded', () => {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     weatherMapApp = new WeatherMap();
+
+    highlightCurrentPage();
 });
+
+function highlightCurrentPage() {
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.navbar-item');
+    
+    navItems.forEach(item => {
+        const page = item.getAttribute('data-page');
+        
+        // Check if current path matches the page
+        if ((currentPath === '/' && page === 'home') ||
+            (currentPath.includes('/report') && page === 'report') ||
+            (currentPath.includes('/about') && page === 'about')) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', function() {

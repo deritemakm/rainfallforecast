@@ -118,6 +118,17 @@ body {
   animation: gooeyEffect 250ms 1;
 }
 
+/* Active page highlight */
+.navbar-item.active::before {
+  opacity: 1;
+  background: #4e8bb5;
+  transform: scale(1);
+}
+
+.navbar-item.active .navbar-link {
+  color: #D9D9D9;
+}
+
 .container {
   flex: 1;
   max-width: 1400px;
