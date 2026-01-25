@@ -369,26 +369,21 @@ function updateTime() {
 
 // Highlight current page in navbar
 function highlightCurrentPage() {
-  const currentPath = window.location.pathname;
-  const navItems = document.querySelectorAll('.navbar-item');
-  
-  console.log('highlightCurrentPage - Current path:', currentPath);
-  console.log('highlightCurrentPage - Found nav items:', navItems.length);
-  
-  navItems.forEach(item => {
-    const page = item.getAttribute('data-page');
-    console.log('Checking nav item with data-page:', page);
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.navbar-item');
     
-    // Check if current path matches the page
-    if ((currentPath === '/' && page === 'home') ||
-        (currentPath.includes('/report') && page === 'report') ||
-        (currentPath.includes('/about') && page === 'about')) {
-      item.classList.add('active');
-      console.log('Added active class to:', page);
-    } else {
-      item.classList.remove('active');
-    }
-  });
+    navItems.forEach(item => {
+        const page = item.getAttribute('data-page');
+        
+        // Check if current path matches the page
+        if ((currentPath === '/' && page === 'home') ||
+            (currentPath.includes('/report') && page === 'report') ||
+            (currentPath.includes('/about') && page === 'about')) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
 }
 
 // Add navigation effects
@@ -421,13 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateTime, 1000);
   
   // Highlight current page and add navigation effects
-  console.log('Current path:', window.location.pathname);
   highlightCurrentPage();
   addNavigationEffects();
   
   // Debug: Check if active class was added
   const activeItems = document.querySelectorAll('.navbar-item.active');
-  console.log('Active navbar items:', activeItems.length);
   activeItems.forEach(item => {
     console.log('Active item page:', item.getAttribute('data-page'));
   });
