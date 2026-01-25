@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import Response
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, time
 import os
@@ -99,8 +100,15 @@ async def get_all_weather_data():
     
     return cached_data
 
+class NoCacheStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope) -> Response:
+        response = await super().get_response(path, scope)
+        # Instruct browser to always fetch from server
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+
 # Serve everything under /static/ from the static folder
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", NoCacheStaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
