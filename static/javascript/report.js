@@ -367,6 +367,49 @@ function updateTime() {
   }
 }
 
+// Highlight current page in navbar
+function highlightCurrentPage() {
+  const currentPath = window.location.pathname;
+  const navItems = document.querySelectorAll('.navbar-item');
+  
+  console.log('highlightCurrentPage - Current path:', currentPath);
+  console.log('highlightCurrentPage - Found nav items:', navItems.length);
+  
+  navItems.forEach(item => {
+    const page = item.getAttribute('data-page');
+    console.log('Checking nav item with data-page:', page);
+    
+    // Check if current path matches the page
+    if ((currentPath === '/' && page === 'home') ||
+        (currentPath.includes('/report') && page === 'report') ||
+        (currentPath.includes('/about') && page === 'about')) {
+      item.classList.add('active');
+      console.log('Added active class to:', page);
+    } else {
+      item.classList.remove('active');
+    }
+  });
+}
+
+// Add navigation effects
+function addNavigationEffects() {
+  document.querySelectorAll('.navbar-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      // prevent immediate navigation so animation can play
+      e.preventDefault();
+      link.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        link.style.transform = 'scale(1)';
+        // navigate after animation completes
+        if (href) {
+          window.location.href = href;
+        }
+      }, 150);
+    });
+  });
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize charts & default weather
@@ -376,6 +419,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Start time updates
   updateTime();
   setInterval(updateTime, 1000);
+  
+  // Highlight current page and add navigation effects
+  console.log('Current path:', window.location.pathname);
+  highlightCurrentPage();
+  addNavigationEffects();
+  
+  // Debug: Check if active class was added
+  const activeItems = document.querySelectorAll('.navbar-item.active');
+  console.log('Active navbar items:', activeItems.length);
+  activeItems.forEach(item => {
+    console.log('Active item page:', item.getAttribute('data-page'));
+  });
   
   // Dropdown toggle functionality
   const dropdown = document.querySelector('.select');
