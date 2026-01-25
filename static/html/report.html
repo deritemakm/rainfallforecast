@@ -1,159 +1,303 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GrokCast: 7-Day Rainfall Forecast for Pampanga</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GrokCast: 7-Day Rainfall Forecast for Pampanga</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <link rel="stylesheet" href="/static/css/report.css"/>
-  <link rel="icon" href="/static/weather-icon/no-rain.svg">
-  
-  <!--Font from Google-->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- Background Gradient -->
-  <canvas id="gradient-canvas"></canvas>
+    <link rel="stylesheet" href="/static/css/report.css" />
+    <link rel="icon" href="/static/weather-icon/no-rain.svg" />
 
-  <nav class="navbar">
+    <!--Font from Google-->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Background Gradient -->
+    <canvas id="gradient-canvas"></canvas>
+
+    <nav class="navbar">
       <ul class="navbar-menu">
-          <li class="navbar-item" data-page="home">
-              <a href="/" class="navbar-link">
-                  <i data-feather="home"></i>
-                  <span>Home</span>
-              </a>
-          </li>
-          <li class="navbar-item" data-page="report">
-              <a href="/report" class="navbar-link">
-                  <i data-feather="file-text"></i>
-                  <span>Summary</span>
-              </a>
-          </li>
-          <li class="navbar-item" data-page="about">
-              <a href="/about" class="navbar-link">
-                  <i data-feather="help-circle"></i>
-                  <span>About</span>
-              </a>
-          </li>
+        <li class="navbar-item" data-page="home">
+          <a href="/" class="navbar-link">
+            <i data-feather="home"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="navbar-item" data-page="report">
+          <a href="/report" class="navbar-link">
+            <i data-feather="file-text"></i>
+            <span>Summary</span>
+          </a>
+        </li>
+        <li class="navbar-item" data-page="about">
+          <a href="/about" class="navbar-link">
+            <i data-feather="help-circle"></i>
+            <span>About</span>
+          </a>
+        </li>
       </ul>
-  </nav>
+    </nav>
 
-  <div class="container">
-        <div class="weather-panel-header">
-            <div class="location">
-              <h1>Angeles City</h1>
-              <div class="tooltip">
-                  <i data-feather="info"></i>
-                  <span class="tooltip-text">Click a card to focus charts on that municipality.</span>
-              </div>
-            </div>
-            <div class="dropdown">
-                  <h2 class="dropdown-label">Choose Municipality:</h2>
-                  <div class="select">
-                      <div
-                      class="selected"
-                      data-default="San Fernando"
-                      data-one="San Fernando"
-                      data-two="Bacolor"
-                      data-three="Santa Rita"
-                      data-four="Guagua"
-                      data-five="Sasmuan"
-                      data-six="Lubao"
-                      data-seven="Floridablanca"
-                      data-eight="Porac"
-                      data-nine="Angeles"
-                      data-ten="Mabalacat"
-                      data-eleven="Magalang"
-                      data-twelve="Arayat"
-                      data-thirteen="Candaba"
-                      data-fourteen="San Luis"
-                      data-fifteen="San Simon"
-                      data-sixteen="Apalit"
-                      data-seventeen="Masantol"
-                      data-eighteen="Macabebe"
-                      data-nineteen="Minalin"
-                      data-twenty="Santo Tomas"
-                      data-twentyone="Mexico"
-                      data-twentytwo="Santa Ana"
-                      >
-                          <i data-feather="chevron-down"></i>
-                      </div>
-
-                      <div class="options">
-                          <div><input id="option-1" name="option" type="radio" checked><label class="option" for="option-1" data-txt="San Fernando"></label></div>
-                          <div><input id="option-2" name="option" type="radio"><label class="option" for="option-2" data-txt="Bacolor"></label></div>
-                          <div><input id="option-3" name="option" type="radio"><label class="option" for="option-3" data-txt="Santa Rita"></label></div>
-                          <div><input id="option-4" name="option" type="radio"><label class="option" for="option-4" data-txt="Guagua"></label></div>
-                          <div><input id="option-5" name="option" type="radio"><label class="option" for="option-5" data-txt="Sasmuan"></label></div>
-                          <div><input id="option-6" name="option" type="radio"><label class="option" for="option-6" data-txt="Lubao"></label></div>
-                          <div><input id="option-7" name="option" type="radio"><label class="option" for="option-7" data-txt="Floridablanca"></label></div>
-                          <div><input id="option-8" name="option" type="radio"><label class="option" for="option-8" data-txt="Porac"></label></div>
-                          <div><input id="option-9" name="option" type="radio"><label class="option" for="option-9" data-txt="Angeles"></label></div>
-                          <div><input id="option-10" name="option" type="radio"><label class="option" for="option-10" data-txt="Mabalacat"></label></div>
-                          <div><input id="option-11" name="option" type="radio"><label class="option" for="option-11" data-txt="Magalang"></label></div>
-                          <div><input id="option-12" name="option" type="radio"><label class="option" for="option-12" data-txt="Arayat"></label></div>
-                          <div><input id="option-13" name="option" type="radio"><label class="option" for="option-13" data-txt="Candaba"></label></div>
-                          <div><input id="option-14" name="option" type="radio"><label class="option" for="option-14" data-txt="San Luis"></label></div>
-                          <div><input id="option-15" name="option" type="radio"><label class="option" for="option-15" data-txt="San Simon"></label></div>
-                          <div><input id="option-16" name="option" type="radio"><label class="option" for="option-16" data-txt="Apalit"></label></div>
-                          <div><input id="option-17" name="option" type="radio"><label class="option" for="option-17" data-txt="Masantol"></label></div>
-                          <div><input id="option-18" name="option" type="radio"><label class="option" for="option-18" data-txt="Macabebe"></label></div>
-                          <div><input id="option-19" name="option" type="radio"><label class="option" for="option-19" data-txt="Minalin"></label></div>
-                          <div><input id="option-20" name="option" type="radio"><label class="option" for="option-20" data-txt="Santo Tomas"></label></div>
-                          <div><input id="option-21" name="option" type="radio"><label class="option" for="option-21" data-txt="Mexico"></label></div>
-                          <div><input id="option-22" name="option" type="radio"><label class="option" for="option-22" data-txt="Santa Ana"></label></div>
-                      </div>
-                  </div>
-              </div>
+    <div class="container">
+      <div class="weather-panel-header">
+        <div class="location">
+          <h1>Angeles City</h1>
+          <div class="tooltip">
+            <i data-feather="info"></i>
+            <span class="tooltip-text"
+              >Click a card to focus charts on that municipality.</span
+            >
+          </div>
         </div>
-
-        <div class="municipality-slider" aria-label="7-Day Total Rainfall by Municipality">
-            <button class="slide-btn prev" aria-label="Previous municipalities">&#10094;</button>
-            <div class="slider-viewport">
-              <div class="slider-track" id="municipalityTrack">
-                <!-- Cards injected dynamically by report.js -->
-              </div>
+        <div class="dropdown">
+          <h2 class="dropdown-label">Choose Municipality:</h2>
+          <div class="select">
+            <div
+              class="selected"
+              data-default="San Fernando"
+              data-one="San Fernando"
+              data-two="Bacolor"
+              data-three="Santa Rita"
+              data-four="Guagua"
+              data-five="Sasmuan"
+              data-six="Lubao"
+              data-seven="Floridablanca"
+              data-eight="Porac"
+              data-nine="Angeles"
+              data-ten="Mabalacat"
+              data-eleven="Magalang"
+              data-twelve="Arayat"
+              data-thirteen="Candaba"
+              data-fourteen="San Luis"
+              data-fifteen="San Simon"
+              data-sixteen="Apalit"
+              data-seventeen="Masantol"
+              data-eighteen="Macabebe"
+              data-nineteen="Minalin"
+              data-twenty="Santo Tomas"
+              data-twentyone="Mexico"
+              data-twentytwo="Santa Ana"
+            >
+              <i data-feather="chevron-down"></i>
             </div>
-            <button class="slide-btn next" aria-label="Next municipalities">&#10095;</button>
-        </div>
 
-        <div class="charts-container">
-          <div class="charts-grid">
-            <div class="chart-container">
-              <h3 class="chart-title">Weekly Rainfall Distribution</h3>
-              <p class="chart-hint">
-                Daily rainfall amounts for the next 7 days in millimeters.
-              </p>
-              <div class="chart-wrapper">
-                <canvas id="rainfallChart"></canvas>
+            <div class="options">
+              <div>
+                <input id="option-1" name="option" type="radio" checked /><label
+                  class="option"
+                  for="option-1"
+                  data-txt="San Fernando"
+                ></label>
               </div>
-            </div>
-
-            <div class="chart-container">
-              <h3 class="chart-title">Weather Conditions Distribution</h3>
-              <p class="chart-hint">
-                Breakdown of rainfall intensity levels throughout the week.
-              </p>
-              <div class="chart-wrapper">
-                <canvas id="conditionsChart"></canvas>
+              <div>
+                <input id="option-2" name="option" type="radio" /><label
+                  class="option"
+                  for="option-2"
+                  data-txt="Bacolor"
+                ></label>
+              </div>
+              <div>
+                <input id="option-3" name="option" type="radio" /><label
+                  class="option"
+                  for="option-3"
+                  data-txt="Santa Rita"
+                ></label>
+              </div>
+              <div>
+                <input id="option-4" name="option" type="radio" /><label
+                  class="option"
+                  for="option-4"
+                  data-txt="Guagua"
+                ></label>
+              </div>
+              <div>
+                <input id="option-5" name="option" type="radio" /><label
+                  class="option"
+                  for="option-5"
+                  data-txt="Sasmuan"
+                ></label>
+              </div>
+              <div>
+                <input id="option-6" name="option" type="radio" /><label
+                  class="option"
+                  for="option-6"
+                  data-txt="Lubao"
+                ></label>
+              </div>
+              <div>
+                <input id="option-7" name="option" type="radio" /><label
+                  class="option"
+                  for="option-7"
+                  data-txt="Floridablanca"
+                ></label>
+              </div>
+              <div>
+                <input id="option-8" name="option" type="radio" /><label
+                  class="option"
+                  for="option-8"
+                  data-txt="Porac"
+                ></label>
+              </div>
+              <div>
+                <input id="option-9" name="option" type="radio" /><label
+                  class="option"
+                  for="option-9"
+                  data-txt="Angeles"
+                ></label>
+              </div>
+              <div>
+                <input id="option-10" name="option" type="radio" /><label
+                  class="option"
+                  for="option-10"
+                  data-txt="Mabalacat"
+                ></label>
+              </div>
+              <div>
+                <input id="option-11" name="option" type="radio" /><label
+                  class="option"
+                  for="option-11"
+                  data-txt="Magalang"
+                ></label>
+              </div>
+              <div>
+                <input id="option-12" name="option" type="radio" /><label
+                  class="option"
+                  for="option-12"
+                  data-txt="Arayat"
+                ></label>
+              </div>
+              <div>
+                <input id="option-13" name="option" type="radio" /><label
+                  class="option"
+                  for="option-13"
+                  data-txt="Candaba"
+                ></label>
+              </div>
+              <div>
+                <input id="option-14" name="option" type="radio" /><label
+                  class="option"
+                  for="option-14"
+                  data-txt="San Luis"
+                ></label>
+              </div>
+              <div>
+                <input id="option-15" name="option" type="radio" /><label
+                  class="option"
+                  for="option-15"
+                  data-txt="San Simon"
+                ></label>
+              </div>
+              <div>
+                <input id="option-16" name="option" type="radio" /><label
+                  class="option"
+                  for="option-16"
+                  data-txt="Apalit"
+                ></label>
+              </div>
+              <div>
+                <input id="option-17" name="option" type="radio" /><label
+                  class="option"
+                  for="option-17"
+                  data-txt="Masantol"
+                ></label>
+              </div>
+              <div>
+                <input id="option-18" name="option" type="radio" /><label
+                  class="option"
+                  for="option-18"
+                  data-txt="Macabebe"
+                ></label>
+              </div>
+              <div>
+                <input id="option-19" name="option" type="radio" /><label
+                  class="option"
+                  for="option-19"
+                  data-txt="Minalin"
+                ></label>
+              </div>
+              <div>
+                <input id="option-20" name="option" type="radio" /><label
+                  class="option"
+                  for="option-20"
+                  data-txt="Santo Tomas"
+                ></label>
+              </div>
+              <div>
+                <input id="option-21" name="option" type="radio" /><label
+                  class="option"
+                  for="option-21"
+                  data-txt="Mexico"
+                ></label>
+              </div>
+              <div>
+                <input id="option-22" name="option" type="radio" /><label
+                  class="option"
+                  for="option-22"
+                  data-txt="Santa Ana"
+                ></label>
               </div>
             </div>
           </div>
         </div>
-    </div>
+      </div>
 
-  <script src="https://unpkg.com/feather-icons"></script>
-  <script>
+      <div
+        class="municipality-slider"
+        aria-label="7-Day Total Rainfall by Municipality"
+      >
+        <button class="slide-btn prev" aria-label="Previous municipalities">
+          &#10094;
+        </button>
+        <div class="slider-viewport">
+          <div class="slider-track" id="municipalityTrack">
+            <!-- Cards injected dynamically by report.js -->
+          </div>
+        </div>
+        <button class="slide-btn next" aria-label="Next municipalities">
+          &#10095;
+        </button>
+      </div>
+
+      <div class="charts-container">
+        <div class="charts-grid">
+          <div class="chart-container">
+            <h3 class="chart-title">Weekly Rainfall Distribution</h3>
+            <p class="chart-hint">
+              Daily rainfall amounts for the next 7 days in millimeters.
+            </p>
+            <div class="chart-wrapper">
+              <canvas id="rainfallChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <h3 class="chart-title">Weather Conditions Distribution</h3>
+            <p class="chart-hint">
+              Breakdown of rainfall intensity levels throughout the week.
+            </p>
+            <div class="chart-wrapper">
+              <canvas id="conditionsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
       feather.replace();
-  </script>
-  <script src="/static/javascript/report.js"></script>
-  <script src="/static/javascript/gradient.js"></script>
-  <script>
+    </script>
+    <script src="/static/javascript/report.js"></script>
+    <script src="/static/javascript/gradient.js"></script>
+    <script>
       window.gradient = new Gradient();
       window.gradient.initGradient("#gradient-canvas");
-  </script>
-</body>
+    </script>
+  </body>
 </html>

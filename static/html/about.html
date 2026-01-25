@@ -1,106 +1,128 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GrokCast: 7-Day Rainfall Forecast for Pampanga</title>
 
     <link rel="stylesheet" href="/static/css/about.css" />
-    <link rel="icon" href="/static/weather-icons/logo.svg">
-    
+    <link rel="icon" href="/static/weather-icon/no-rain.svg" />
+
     <!--Font from Google-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <canvas id="gradient-canvas"></canvas>
 
     <nav class="navbar">
-        <ul class="navbar-menu">
-            <li class="navbar-item" data-page="home">
-                <a href="/" class="navbar-link">
-                    <i data-feather="home"></i>
-                    <span>Home</span>
-                </a>
-            </li>
-            <li class="navbar-item" data-page="report">
-                <a href="/report" class="navbar-link">
-                    <i data-feather="file-text"></i>
-                    <span>Summary</span>
-                </a>
-            </li>
-            <li class="navbar-item" data-page="about">
-                <a href="/about" class="navbar-link">
-                    <i data-feather="help-circle"></i>
-                    <span>About</span>
-                </a>
-            </li>
-        </ul>
+      <ul class="navbar-menu">
+        <li class="navbar-item" data-page="home">
+          <a href="/" class="navbar-link">
+            <i data-feather="home"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="navbar-item" data-page="report">
+          <a href="/report" class="navbar-link">
+            <i data-feather="file-text"></i>
+            <span>Summary</span>
+          </a>
+        </li>
+        <li class="navbar-item" data-page="about">
+          <a href="/about" class="navbar-link">
+            <i data-feather="help-circle"></i>
+            <span>About</span>
+          </a>
+        </li>
+      </ul>
     </nav>
 
     <div class="container">
-        <section class="hero-section">
-            <h1 class="hero-title">About Our Weather System</h1>
-            <p class="hero-subtitle">
-                Empowering communities with accurate, real-time weather data and insights to make informed decisions and stay prepared for changing conditions.
-            </p>
-        </section>
+      <section class="hero-section">
+        <h1 class="hero-title">About Our Weather System</h1>
+        <p class="hero-subtitle">
+          Empowering communities with accurate, real-time weather data and
+          insights to make informed decisions and stay prepared for changing
+          conditions.
+        </p>
+      </section>
 
-        <section class="team-section">
-            <h2 class="section-title">Our Team</h2>
-            <div class="team-grid">
-                <div class="team-card">
-                    <div class="team-avatar">AB</div>
-                    <h4 class="team-name">Aaron John Bolado</h4>
-                    <div class="team-role">Lead Developer</div>
-                    <p class="team-bio">Created the core architecture for the rainfall forecasting system.</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar">LC</div>
-                    <h4 class="team-name">Loriel Ann Coniconde</h4>
-                    <div class="team-role">UI/UX Designer</div>
-                    <p class="team-bio">Trained the model and designed the UI/UX for the weather dashboard.</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar">MG</div>
-                    <h4 class="team-name">Mikaella Gonzales</h4>
-                    <div class="team-role">Data Scientist</div>
-                    <p class="team-bio">Trained the model and analyzed weather data for improved forecasting.</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar">YI</div>
-                    <h4 class="team-name">Yohairra China Ignacio</h4>
-                    <div class="team-role">Frontend Developer</div>
-                    <p class="team-bio">Implemented the user interface and user experience and trained the model.</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar">GK</div>
-                    <h4 class="team-name">Gerald Karandang</h4>
-                    <div class="team-role">Project Assistant</div>
-                    <p class="team-bio">Assisted in the development and provided financial support.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta-section">
-            <h2 class="cta-title">Ready to Get Started?</h2>
-            <p class="cta-text">
-                Join US on our weather system for accurate forecasts and timely alerts. Experience the difference that reliable weather data can make for your community.
+      <section class="team-section">
+        <h2 class="section-title">Our Team</h2>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">AB</div>
+            <h4 class="team-name">Aaron John Bolado</h4>
+            <div class="team-role">Lead Developer</div>
+            <p class="team-bio">
+              Created the core architecture for the rainfall forecasting system.
             </p>
-            <a href="/static/html/index.html" class="cta-button">View Weather Reports</a>
-        </section>
-  </div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">LC</div>
+            <h4 class="team-name">Loriel Ann Coniconde</h4>
+            <div class="team-role">UI/UX Designer</div>
+            <p class="team-bio">
+              Trained the model and designed the UI/UX for the weather
+              dashboard.
+            </p>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">MG</div>
+            <h4 class="team-name">Mikaella Gonzales</h4>
+            <div class="team-role">Data Scientist</div>
+            <p class="team-bio">
+              Trained the model and analyzed weather data for improved
+              forecasting.
+            </p>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">YI</div>
+            <h4 class="team-name">Yohairra China Ignacio</h4>
+            <div class="team-role">Frontend Developer</div>
+            <p class="team-bio">
+              Implemented the user interface and user experience and trained the
+              model.
+            </p>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">GK</div>
+            <h4 class="team-name">Gerald Karandang</h4>
+            <div class="team-role">Project Assistant</div>
+            <p class="team-bio">
+              Assisted in the development and provided financial support.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2 class="cta-title">Ready to Get Started?</h2>
+        <p class="cta-text">
+          Join US on our weather system for accurate forecasts and timely
+          alerts. Experience the difference that reliable weather data can make
+          for your community.
+        </p>
+        <a href="/static/html/index.html" class="cta-button"
+          >View Weather Reports</a
+        >
+      </section>
+    </div>
 
     <script src="https://unpkg.com/feather-icons"></script>
     <script>
-        feather.replace();
+      feather.replace();
     </script>
     <script src="/static/javascript/about.js"></script>
     <script src="/static/javascript/gradient.js"></script>
     <script>
-        window.gradient = new Gradient();
-        window.gradient.initGradient("#gradient-canvas");
+      window.gradient = new Gradient();
+      window.gradient.initGradient("#gradient-canvas");
     </script>
-</body>
+  </body>
 </html>
