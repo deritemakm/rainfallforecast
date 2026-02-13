@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import Response
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, time
 import os
@@ -19,28 +20,28 @@ class CustomMinMaxScaler(MinMaxScaler):
             self.feature_names_in_ = [f"x{i}" for i in range(X.shape[1])]
 
 pampanga_municipalities_data = [
-    { "post_id": 2000, "name": "Angeles City", "coords": [15.14336011, 120.59051810]},
-    { "post_id": 2001, "name": "Apalit", "coords": [14.94997653, 120.75675619]},
-    { "post_id": 2002, "name": "Arayat", "coords": [15.16593002, 120.78159403]},
-    { "post_id": 2003, "name": "Bacolor", "coords": [15.03378028, 120.62071385]},
-    { "post_id": 2004, "name": "Candaba", "coords": [15.10580611, 120.87269784]},
-    { "post_id": 2005, "name": "Floridablanca", "coords": [14.93617972, 120.48914087]},
-    { "post_id": 2006, "name": "Guagua", "coords": [14.9661957, 120.63310490]},
-    { "post_id": 2007, "name": "Lubao", "coords": [14.90217987, 120.55094493]},
-    { "post_id": 2008, "name": "Mabalacat", "coords": [15.22089063, 120.57105409]},
-    { "post_id": 2009, "name": "Macabebe", "coords": [14.91324103, 120.67347402]},
-    { "post_id": 2010, "name": "Magalang", "coords": [15.2478282, 120.68086630]},
-    { "post_id": 2011, "name": "Masantol", "coords": [14.85194769, 120.67746495]},
-    { "post_id": 2012, "name": "Mexico", "coords": [15.06633515, 120.71217193]},
-    { "post_id": 2013, "name": "Minalin", "coords": [14.95365406, 120.70039268]},
-    { "post_id": 2014, "name": "Porac", "coords": [15.1241602, 120.45899588]},
-    { "post_id": 2015, "name": "San Fernando", "coords": [15.05961285, 120.65646538]},
-    { "post_id": 2016, "name": "San Luis", "coords": [15.01880145, 120.81164009]},
-    { "post_id": 2017, "name": "San Simon", "coords": [14.9940879, 120.77563412]},
-    { "post_id": 2018, "name": "Santa Ana", "coords": [15.10942466, 120.77008266]},
-    { "post_id": 2019, "name": "Santa Rita", "coords": [15.00866765, 120.60767406]},
-    { "post_id": 2020, "name": "Santo Tomas", "coords": [15.00884912, 120.71039539]},
-    { "post_id": 2021, "name": "Sasmuan", "coords": [14.88693929, 120.61290981]}
+    { "post_id": 2000, "name": "San Fernando", "coords": [15.079086, 120.61683]},
+    { "post_id": 2001, "name": "Bacolor", "coords": [15.008787, 120.67227]},
+    { "post_id": 2002, "name": "Santa Rita", "coords": [15.008787, 120.58824]},
+    { "post_id": 2003, "name": "Guagua", "coords": [14.938489, 120.72761]},
+    { "post_id": 2004, "name": "Sasmuan", "coords": [14.938489, 120.72761]},
+    { "post_id": 2005, "name": "Lubao", "coords": [14.938489, 120.5597]},
+    { "post_id": 2006, "name": "Floridablanca", "coords": [15.008787, 120.58824]},
+    { "post_id": 2008, "name": "Porac", "coords": [15.079086, 120.532715]},
+    { "post_id": 2009, "name": "Angeles", "coords": [15.1493845, 120.56127]},
+    { "post_id": 2010, "name": "Mabalacat", "coords": [15.219684, 120.58989]},
+    { "post_id": 2011, "name": "Magalang", "coords": [15.219684, 120.674164]},
+    { "post_id": 2012, "name": "Arayat", "coords": [15.1493845, 120.72965]},
+    { "post_id": 2013, "name": "Candaba", "coords": [15.079086, 120.78505]},
+    { "post_id": 2014, "name": "San Luis", "coords": [15.008787, 120.75631]},
+    { "post_id": 2015, "name": "San Simon", "coords": [15.008787, 120.75631]},
+    { "post_id": 2016, "name": "Apalit", "coords": [14.938489, 120.81156]},
+    { "post_id": 2017, "name": "Masantol", "coords": [14.86819, 120.78285]},
+    { "post_id": 2018, "name": "Macabebe", "coords": [14.938489, 120.72761]},
+    { "post_id": 2019, "name": "Minalin", "coords": [14.938489, 120.72761]},
+    { "post_id": 2020, "name": "Santo Tomas", "coords": [15.008787, 120.84034]},
+    { "post_id": 2021, "name": "Mexico", "coords": [15.079086, 120.700935]},
+    { "post_id": 2022, "name": "Santa Ana", "coords": [15.079086, 120.78505]}
 ]
 
 # Initialize services, scheduler, and fastAPI server
@@ -52,18 +53,18 @@ app = FastAPI(title="Rainfall Forecast API")
 async def startup_event():
     print("FastAPI Startup: Loading All Models...")
     
-    # Load all models into the service registry
+    # Load all models into the models registry
     try:
         forecast_service.load_all_models()
     except Exception as e:
         print(f"FATAL ERROR during model loading: {e}")
     
-    # Schedule the daily forecast job (1:00 AM)
-    DAILY_UPDATE_HOUR = 1
+    # Schedule the daily forecast job (12:00 AM)
+    DAILY_UPDATE_HOUR = 0
     DAILY_UPDATE_MINUTE = 0
     
     scheduler.add_job(
-        forecast_service.run_batch_forecast_and_cache, 
+        forecast_service.run_forecasting_pipeline, 
         'cron', 
         hour=DAILY_UPDATE_HOUR, 
         minute=DAILY_UPDATE_MINUTE, 
@@ -72,11 +73,11 @@ async def startup_event():
     )
     
     scheduler.start()
-    print(f"✅ Daily forecast job scheduled for {DAILY_UPDATE_HOUR:02}:{DAILY_UPDATE_MINUTE:02}.")
+    print(f"Daily forecast job scheduled for {DAILY_UPDATE_HOUR:02}:{DAILY_UPDATE_MINUTE:02}.")
 
     # Run the forecast once immediately on startup for fresh data
     asyncio.create_task(
-        forecast_service.run_batch_forecast_and_cache(pampanga_municipalities_data)
+        forecast_service.run_forecasting_pipeline(pampanga_municipalities_data)
     )
     print("Initial forecast task started in background.")
 
@@ -96,14 +97,18 @@ async def get_all_weather_data():
             status_code=503, 
             detail="Forecast data is not yet available. Please wait for the initial forecast job to complete."
         )
-
-    last_update = forecast_service.last_update.isoformat() if forecast_service.last_update else "N/A"
-    print(f"Serving weather data from cache. Last updated: {last_update}")
     
     return cached_data
 
+class NoCacheStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope) -> Response:
+        response = await super().get_response(path, scope)
+        # Instruct browser to always fetch from server
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+
 # Serve everything under /static/ from the static folder
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", NoCacheStaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
